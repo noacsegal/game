@@ -7,7 +7,7 @@
 #include <vector>
 #include <memory>
 
-using namespace std;
+enum class ItemType { EMPTY, KEY, BOMB, TORCH };
 
 void gotoxy(int x, int y);
 

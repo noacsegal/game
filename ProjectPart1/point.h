@@ -1,6 +1,5 @@
 #pragma once
 #include "direction.h"
-#include "utillities.h"
 
 // a class to be the foundation for everything
 class point

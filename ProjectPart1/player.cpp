@@ -1,3 +1,5 @@
+//player.cpp
+
 #include "player.h"
 #include <cstdlib>
 #include <cctype>
@@ -70,8 +72,8 @@ bool player::move(Screen& currScreen) {
 
 		//save the level as it is
 		char current_screen[Screen::MAX_Y][Screen::MAX_X];
-		key key1 = currScreen.getScreenKeys()[0];
-		key key2 = currScreen.getScreenKeys()[1];
+		key key1 = currScreen.changeScreenKeys()[0];
+		key key2 = currScreen.changeScreenKeys()[1];
 	
 
 		for (int y = 0; y < Screen::MAX_Y; y++) {
@@ -188,12 +190,10 @@ bool player::lowerLives() {
 	else {
 		lives--;
 
-		//takes key
-		if (GameScreens::isNullKey(inventory) == false) {
-			inventory = GameScreens::nullkey();
-		}
-
+		//takes item
+		heldType = ItemType::EMPTY;
 	}
+	return false;
 }
 
 

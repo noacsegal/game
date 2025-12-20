@@ -33,7 +33,6 @@ void GameScreens::createScreenArray() {
     };
 
 
-
     static const char* screen1[Screen::MAX_Y] = {
         //1          2         3         4         5         6         7         8
         // 01234567890123456789012345678901234567890123456789012345678901234567890123456789
@@ -42,7 +41,7 @@ void GameScreens::createScreenArray() {
           "W                                                                              W",//2
           "W          K                                                            K      W",//3
           "W              W                                                               W",//4
-          "W         W B*                                                                 W",//5
+          "W         W @*                                                                 W",//5
           "W           W    W                                                             W",//6
           "W      W         \\                                                             W",//7
           "W          W                                                                   W",//8
@@ -130,6 +129,7 @@ void GameScreens::createScreenArray() {
     screenKeys.resize(NUM_OF_SCREENS);
     screenSwitches.resize(NUM_OF_SCREENS);
     screenDoors.resize(NUM_OF_SCREENS);
+    screenBombs.resize(NUM_OF_SCREENS);
 }
 
 //builds the keys,switches and doors for screen i+1
@@ -144,9 +144,11 @@ void GameScreens::buildLevel(int i)
 
     currentScreen.createKeyArray();
     currentScreen.createSwitchArray();
+	currentScreen.createBombArray();
 	
-    vector<key>& detectedKeys = currentScreen.getScreenKeys();
-    vector<Switch>& detectedSwitches = currentScreen.getScreenSwitches();
+    std::vector<key>& detectedKeys = currentScreen.changeScreenKeys();
+    std::vector<Switch>& detectedSwitches = currentScreen.changeScreenSwitches();
+    std::vector<Bomb>& detectedBombs = currentScreen.changeScreenBombs();
 
     //TEMP
     point placeB = { 22, 5,  Direction::directions[Direction::STAY], 'B' };
@@ -161,12 +163,12 @@ void GameScreens::buildLevel(int i)
     if (i == 1) {
         // Let's say Door 1 is at (10, 20) and needs the FIRST key found on screen
         if (detectedKeys.size() > 0) {
-            vector<key*> keysForDoor1;
+            std::vector<key*> keysForDoor1;
             keysForDoor1.push_back(&detectedKeys[0]); // Pointer to the first detected key
 
-            vector<Switch*> switchesForDoor1; // No switches for this door
+            std::vector<Switch*> switchesForDoor1; // No switches for this door
 
-            vector<char> statesForDoor1; // No switch states
+            std::vector<char> statesForDoor1; // No switch states
 
             // Add the door to GameScreens storage
             Door door1(point(10, 20, Direction::directions[Direction::STAY], '1'), keysForDoor1, switchesForDoor1, statesForDoor1);
@@ -176,13 +178,13 @@ void GameScreens::buildLevel(int i)
         // --- Example: Door 2 Logic ---
         // Needs the SECOND key and the FIRST switch
         if (detectedKeys.size() > 0 && detectedSwitches.size() > 0) {
-            vector<key*> keysForDoor2;
+            std::vector<key*> keysForDoor2;
             keysForDoor2.push_back(&detectedKeys[1]);
 
-            vector<Switch*> switchesForDoor2;
+            std::vector<Switch*> switchesForDoor2;
             switchesForDoor2.push_back(&detectedSwitches[0]);
 
-            vector<char> statesForDoor2;
+            std::vector<char> statesForDoor2;
             statesForDoor2.push_back(Switch::OPEN);
 
             Door door2(point(50, 5, Direction::directions[Direction::STAY], '2'), keysForDoor2, switchesForDoor2, statesForDoor2);
@@ -194,14 +196,14 @@ void GameScreens::buildLevel(int i)
     if (i == 2) {
 
         if (detectedKeys.size() > 1 && detectedSwitches.size() > 0) {
-            vector<key*> keysForDoor1;
+            std::vector<key*> keysForDoor1;
             keysForDoor1.push_back(&detectedKeys[1]);
             keysForDoor1.push_back(&detectedKeys[1]);
 
-            vector<Switch*> switchesForDoor1;
+            std::vector<Switch*> switchesForDoor1;
             switchesForDoor1.push_back(&detectedSwitches[0]);
 
-            vector<char> statesForDoor1;
+            std::vector<char> statesForDoor1;
             statesForDoor1.push_back(Switch::OPEN);
 
             Door door2(point(31, 6, Direction::directions[Direction::STAY], '1'), keysForDoor1, switchesForDoor1, statesForDoor1);
@@ -226,11 +228,11 @@ void GameScreens::printPlayorInventory(key* keyp1, key* keyp2)
     int p1valid = 0;
     int p2valid = 0;
 
-    if (!isNullKey(keyp1)) {
+    if (keyp1 != nullptr) {
         p1valid++;
     }
 
-    if (!isNullKey(keyp2)) {
+    if (keyp2 != nullptr) {
         p2valid++;
     }
     std::cout << "Player $ has " << p1valid << " keys         Player & has " << p2valid << " keys" << std::flush;

@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "player.h"
 #include <iostream>
+
 #include <windows.h>
 #include <conio.h>
 #include "utillities.h"
@@ -27,7 +28,7 @@ void Game::startGame() {
         gs.createScreenArray();
 
         int indexScreen = 0;
-        Screen* currScreenPtr = &gs.Screeni(indexScreen);
+        Screen* currScreenPtr = &gs.changeScreeni(indexScreen);
         currScreenPtr->draw();
         bool running = true; //is false at the end of the game
 
@@ -47,23 +48,23 @@ void Game::startGame() {
 
         running = true;
         gs.buildLevel(indexScreen);
-        currScreenPtr = &gs.Screeni(indexScreen);
+        currScreenPtr = &gs.changeScreeni(indexScreen);
 
-        vector<Door>* currentDoors = &gs.Doori(indexScreen);
-        vector<Switch>* currentSwitches = &currScreenPtr->ScreenSwitches();
-        vector<key>* currentKeys = &currScreenPtr->ScreenKeys();
-        vector<Bomb> currentBombs = &currScreenPtr->screenBombs();
+        std::vector<Door>* currentDoors = &gs.changeDoori(indexScreen);
+        std::vector<Switch>* currentSwitches = &currScreenPtr->changeScreenSwitches();
+        std::vector<key>* currentKeys = &currScreenPtr->changeScreenKeys();
+        std::vector<Bomb>* currentBombs = &currScreenPtr->changeScreenBombs();
 
         //create two players
         player players[] = {
-            player(point(10, 21, Direction::directions[Direction::STAY], '$'), "wdxas", 'e', gs.nullkey()),
-            player(point(70, 21, Direction::directions[Direction::STAY], '&'), "ilmjk", 'o', gs.nullkey())
+            player(point(10, 21, Direction::directions[Direction::STAY], '$'), "wdxas", 'e'),
+            player(point(70, 21, Direction::directions[Direction::STAY], '&'), "ilmjk", 'o')
         };
 
         // Track which player has finished the current level
         bool playerFinished[GameScreens::NUM_OF_PLAYERS] = { false, false };
 
-        gs.printPlayorInventory(players[0].getInventory(), (players[1].getInventory()));
+        gs.printPlayorInventory(players[0].changeKey(), (players[1].changeKey()));
         currScreenPtr->draw();
 
         //draw players
@@ -94,12 +95,13 @@ void Game::startGame() {
                     if (temp == door.getPlace()) {
                         hitDoor = true;
 
+                        //*************************************************************************************************
                         // The door itself now checks its own keys and switches via pointers
-                        if (door.canOpen(s.getInventory())) {
+                        if (door.canOpen(s.changeKey())) {
 
                             //take the key from the player
-                            s.updateKey(gs.nullkey());
-                            gs.printPlayorInventory(players[0].getInventory(), players[1].getInventory());
+                            s.updateKey(nullptr);
+                            gs.printPlayorInventory(players[0].changeKey(), players[1].changeKey());
 
                             door.addPlayer(); // Add player to door count
 
@@ -111,20 +113,21 @@ void Game::startGame() {
                 }
 
                 if (!hitDoor) {
-                    s.getBody().move();
-
+                    
                     // Check wall collisions / puzzles
                     if (s.move(*currScreenPtr)) {
-                        gs.printPlayorInventory(players[0].getInventory(), players[1].getInventory());
+                        gs.printPlayorInventory(players[0].changeKey(), players[1].changeKey());
 
                         // --- Check Collision with KEYS ---
                         for (auto& k : *currentKeys) {
                             if (s.getBody() == k.getPlace() && !k.isTaken()) {
-                                if (gs.isNullKey(s.getInventory())) {
+                                if (s.getItemType() == ItemType::EMPTY) {
+                                    //only if player isn't holding anything and key isn't taken the player takes the key
                                     s.updateKey(&k);
                                     k.changeTaken(true);
+                                    s.updateItemType(ItemType::KEY);
                                 }
-                                gs.printPlayorInventory(players[0].getInventory(), players[1].getInventory());
+                                gs.printPlayorInventory(players[0].changeKey(), players[1].changeKey());
                             }
                         }
 
@@ -136,9 +139,17 @@ void Game::startGame() {
                         }
 
                         //check collision with bomb
-                        if (s.getBody() == )
-                            //*************************************************************************************************************
-                        // --- Redraw Logic ---
+                        for (auto& b : *currentBombs) {
+                            
+                            if (s.getBody() == b.getPlace()) {
+                                if (s.getItemType() == ItemType::EMPTY) {
+                                    s.updateBomb(&b);
+                                    s.updateItemType(ItemType::BOMB);
+                                }
+                            }
+                        }
+                            
+                            // --- Redraw Logic ---
 
                         // 1. Draw Keys (if not taken)
                         for (auto& k : *currentKeys) {
@@ -153,6 +164,11 @@ void Game::startGame() {
                         // 3. Draw Doors
                         for (const auto& d : *currentDoors) {
                             d.getPlace().draw();
+                        }
+
+                        for (auto& b : *currentBombs) {
+                            if (!b.isTicking())
+                                b.getPlace().draw();
                         }
 
                         // 4. Draw Players
@@ -170,6 +186,13 @@ void Game::startGame() {
 
             if (restart) break;
 
+            //check iteration for bomb
+            for (auto& b : *currentBombs) {
+                if (b.isTicking()) {
+                    b.countdown(players[0], players[1]);
+                }
+            }
+
             bool levelComplete = false;
             //********************************************************************************************************************************
             // ADD: CHECK IF PLAYERS WENT THROUGH DIFFRENT DOORS AND WHAT TO DO
@@ -180,7 +203,7 @@ void Game::startGame() {
 
                 // Check if End of Game
                 if (indexScreen == GameScreens::NUM_OF_SCREENS - 1) {
-                    currScreenPtr = &gs.Screeni(indexScreen); // End screen
+                    currScreenPtr = &gs.changeScreeni(indexScreen); // End screen
                     cls();
                     currScreenPtr->draw();
                     running = false;
@@ -189,10 +212,10 @@ void Game::startGame() {
                 else {
                     //next level setup
                     gs.buildLevel(indexScreen);
-                    currScreenPtr = &gs.Screeni(indexScreen);
-                    currentDoors = &gs.Doori(indexScreen);
-                    currentSwitches = &currScreenPtr->ScreenSwitches();
-                    currentKeys = &currScreenPtr->ScreenKeys();
+                    currScreenPtr = &gs.changeScreeni(indexScreen);
+                    currentDoors = &gs.changeDoori(indexScreen);
+                    currentSwitches = &currScreenPtr->changeScreenSwitches();
+                    currentKeys = &currScreenPtr->changeScreenKeys();
                 }
 
 
@@ -202,15 +225,15 @@ void Game::startGame() {
                 // Reset Players
                 players[0].bodyToChange().changePosition(30, 10, Direction::directions[Direction::STAY]);
                 players[1].bodyToChange().changePosition(32, 10, Direction::directions[Direction::STAY]);
-                players[0].updateKey(gs.nullkey());
-                players[1].updateKey(gs.nullkey());
+                players[0].updateKey(nullptr);
+                players[1].updateKey(nullptr);
 
                 playerFinished[0] = false;
                 playerFinished[1] = false;
 
                 players[0].draw();
                 players[1].draw();
-                gs.printPlayorInventory(players[0].getInventory(), players[1].getInventory());
+                gs.printPlayorInventory(players[0].changeKey(), players[1].changeKey());
             }
 
             // --- Input Handling (Pause/Exit) ---
@@ -227,12 +250,34 @@ void Game::startGame() {
                     else if (tolower(keyBoard) == ESC) {
                         gotoxy(0, Screen::MAX_Y);
                         std::cout << "                                                                                ";
-                        gs.printPlayorInventory(players[0].getInventory(), players[1].getInventory());
+                        gs.printPlayorInventory(players[0].changeKey(), players[1].changeKey());
                     }
                 }
+                
                 else {
                     for (int i = 0; i < GameScreens::NUM_OF_PLAYERS; i++) {
                         if (!playerFinished[i]) players[i].keyPressed(std::tolower(keyBoard));
+                    }
+
+                    //***********************************************************************************************************************************************************************************************************************************
+                    //if player let go of an element
+                    for (auto& p : players) {
+                        //if we pressed the char to get rid od something and we're holding something
+                        if (keyBoard == p.getDisposeChar() && p.getItemType() != ItemType::EMPTY) {
+
+                            if (p.getItemType() == ItemType::KEY) {
+                                p.changeKey()->changeTaken(false); //key knows it isnt being held
+                                p.updateKey(nullptr); //player doesnt have key
+                                p.updateItemType(ItemType::EMPTY); // the player knows it itst holding an item
+                                p.changeKey()->getPlace().changePosition(p.getBody().getX(), p.getBody().getY(), Direction::directions[Direction::STAY]);//change position of key
+                            }
+
+                            else if (p.getItemType() == ItemType::BOMB) {
+                                p.changeBomb()->turnOn();
+                                p.updateBomb(nullptr);
+                                p.updateItemType(ItemType::EMPTY);
+                            }
+                        }
                     }
                 }
             }

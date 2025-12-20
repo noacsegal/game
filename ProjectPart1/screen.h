@@ -1,10 +1,12 @@
 //screen.h
 #pragma once
-#include "Point.h"
+#include <vector>
 #include "key.h"
-#include "Door.h"
 #include "Switch.h"
-
+#include "Door.h"
+#include "Bomb.h"
+#include "point.h"
+class Bomb;
 
 class Screen {
 public:
@@ -17,10 +19,10 @@ public:
 
 private:
 	char screen[MAX_Y][MAX_X + 1];
-	vector < key> screenKeys;
-	vector <Switch> screenSwitches;
-	vector <Door> screenDoors;
-	vector <Bomb> screenBombs;
+	std::vector < key> screenKeys;
+	std::vector <Switch> screenSwitches;
+	std::vector <Door> screenDoors;
+	std::vector <Bomb> screenBombs;
 
 	//return the char from a specific point of the screen
 	char charAt(const point& p) const {
@@ -31,15 +33,15 @@ public:
 	Screen() {}
 	void createScreen(const char** content);
 
-	vector<Switch>& ScreenSwitches() {
+	std::vector<Switch>& changeScreenSwitches() {
 		return screenSwitches;
 	}
 
-	vector<key>& ScreenKeys() {
+	std::vector<key>& changeScreenKeys() {
 		return screenKeys;
 	}
 
-	vector <Bomb>& screenBombs() {
+	std::vector <Bomb>& changeScreenBombs() {
 		return screenBombs;
 	}
 
@@ -63,6 +65,8 @@ public:
 	void createKeyArray();
 
 	void createSwitchArray();
+
+	void createBombArray();
 
 	
 	//puts a char onto the screen array

@@ -3,7 +3,7 @@
 #include "point.h"
 #include "key.h"
 #include "Switch.h"
-
+#include "utillities.h"
 
 
 class Door
@@ -13,18 +13,17 @@ public:
 
 private:
 	point place;
-	vector<key*> my_keys;
-	vector<bool> keyUsed;
-	vector<Switch*> my_switches; // switches that control the door
-	vector<char> switch_states; // corresponding states for the switches
-	//bool isOpen = false; *******************************************************************
+	std::vector<key*> my_keys;
+	std::vector<bool> keyUsed;
+	std::vector<Switch*> my_switches; // switches that control the door
+	std::vector<char> switch_states; // corresponding states for the switches
 	int keyCounter = 0; // counts how many keys have reached the door
 	int playerCounter = 0; //counts how many players have gone through the door
 
 public:
 	Door() {}
 
-	Door(point _place, vector<key*> keys, vector<Switch*> switches, vector<char> states) : 
+	Door(point _place, std::vector<key*> keys, std::vector<Switch*> switches, std::vector<char> states) :
 		place(_place), my_keys(keys), my_switches(switches), switch_states(states)  {
 		keyUsed.resize(keys.size(), false);
 	}

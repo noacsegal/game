@@ -1,8 +1,9 @@
-
+//scren.cpp
 #include "screen.h"
 #include <iostream>
 #include "utillities.h"
 #include <cstring>
+#include "Bomb.h"
 
 
 void Screen::createScreen(const char** content)
@@ -54,6 +55,19 @@ void Screen::createSwitchArray()
 				point p = { x, y, Direction::directions[Direction::STAY] , ch };
 				Switch sw = { p, false };
 				screenSwitches.push_back(sw);
+			}
+		}
+	}
+}
+
+void Screen::createBombArray()
+{
+	for (int row = 0; row < MAX_Y; row++) {
+		for (int col = 0; col < MAX_X; col++) {
+			point p = point(col, row, Direction::directions[Direction::STAY], screen[row][col]);
+			if (isChar(p, Bomb::BOMB)) {
+				Bomb b = { p };
+				screenBombs.push_back(b); 
 			}
 		}
 	}

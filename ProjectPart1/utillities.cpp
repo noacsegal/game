@@ -1,3 +1,4 @@
+#define _HAS_STD_BYTE 0
 #include <windows.h>
 #include <iostream>
 #include <cstdlib>
@@ -8,8 +9,6 @@
 
 static constexpr char OBSTACLE = '*';
 static constexpr char SPRING = '#';
-static constexpr char SWITCH_ON = '/';
-static constexpr char SWITCH_OFF = 47; // can't do '\'
 static constexpr char RIDDLE = '?';
 static constexpr size_t NUM_KEYS = 5;
 

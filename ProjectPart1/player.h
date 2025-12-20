@@ -1,13 +1,9 @@
 //player.h
 #pragma once
-#include "direction.h"
-#include "utillities.h"
 #include "screen.h"
 #include "point.h"
 #include "Key.h"
-
-class Bomb;
-
+#include "Bomb.h"
 
 class player
 {
@@ -22,16 +18,17 @@ private:
 	char keys[NUM_KEYS];
 	point body;
 	char dispose;
-	key* inventory;
-	size_t num_collected = 0;
 	int riddle_trys_left = 3;
-	Bomb* invenBomb; //ADD
-	int lives = 3;//ADD
+	//ADD
+	int lives = 3;
+	ItemType heldType = ItemType::EMPTY;
+	key* heldKey = nullptr;
+	Bomb* heldBomb = nullptr;
 
 public:
 
-	player(const point& point, const char(&the_keys)[NUM_KEYS + 1], char dis_key, key* new_k)
-		: body(point), dispose(dis_key), inventory(new_k){
+	player(const point& point, const char(&the_keys)[NUM_KEYS + 1], char dis_key)
+		: body(point), dispose(dis_key) {
 		memcpy(keys, the_keys, sizeof(keys[0]) * (NUM_KEYS));
 	}
 
@@ -41,17 +38,12 @@ public:
 	void draw(char ch);
 	void keyPressed(char ch);//moves player in diffrent directions
 
-	void updateKey(key* new_key) {
-		inventory = new_key;
-	}
+	
 
 	point getBody() {
 		return body;
 	}
 
-	key* getInventory() {
-		return inventory;
-	}
 
 	point& bodyToChange() {
 		return body;
@@ -61,4 +53,36 @@ public:
 
 	bool lowerLives();
 
+	key* changeKey() {
+		return heldKey;
+	}
+
+	Bomb* changeBomb() {
+		return heldBomb;
+	}
+
+	ItemType getItemType() {
+		return heldType;
+	}
+
+	void updateKey(key* k) {
+		heldKey = k;
+	}
+
+	void updateBomb(Bomb* b) {
+		heldBomb = b;
+	}
+
+	void updateItemType(ItemType type) {
+		heldType = type;
+	}
+
+	char getDisposeChar() const {
+		return dispose;
+	}
+
 };
+
+
+
+

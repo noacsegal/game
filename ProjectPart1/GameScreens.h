@@ -6,7 +6,6 @@
 #include "utillities.h"
 #include "Bomb.h"
 
-//TO DO:decide how to choose which key for which door
 
 
 class GameScreens
@@ -21,47 +20,37 @@ private:
 	//data members
 	//IMPORTANT: the gameScreens first and last index are not playing screens
 	// the keys for gamescreens[i] is in screenKeys[i - 1] (because of the start screen)
-	vector <Screen> gameScreens; 
-	vector <vector<key>> screenKeys; // vector of key arrays for each screen
-	vector <vector<Door>> screenDoors;
-	vector <vector<Switch>> screenSwitches;
-	vector <vector<Bomb>> screenBombs;
+	std::vector <Screen> gameScreens;
+	std::vector <std::vector<key>> screenKeys; // vector of key arrays for each screen
+	std::vector <std::vector<Door>> screenDoors;
+	std::vector <std::vector<Switch>> screenSwitches;
+	std::vector <std::vector<Bomb>> screenBombs;
 
 public:
 	GameScreens() {}
 	void createScreenArray();
-	Screen& Screeni(int i) {
+	Screen& changeScreeni(int i) {
 		return gameScreens[i];
 	}
 
-	vector<key>& KeyArray(int i)  {
+	std::vector<key>& changeKeyArray(int i)  {
 		return screenKeys[i];
 	}
 
-	vector<Switch>& SwitchArray(int i)  {
+	std::vector<Switch>& changeSwitchArray(int i)  {
 		return screenSwitches[i];
 	}
 
-	vector <Door>& Doori(int i) {
+	std::vector <Door>& changeDoori(int i) {
 		return screenDoors[i];
 	}
 
-	vector <Bomb>& Bombi(int i) {
+	std::vector <Bomb>& Bombi(int i) {
 		return screenBombs[i];
 	}
 
 	void buildLevel(int i);
 
-	static key* nullkey() {
-		key nullKey = { point(-1,-1, {Direction::directions[Direction::STAY]}, key::KEY) }; //a null key when player uses their key
-		return &nullKey;
-	}
-
-	static bool isNullKey(key* check) {
-
-		return (check->getPlace().getX() == nullkey()->getPlace().getX() &&
-			check->getPlace().getY() == nullkey()->getPlace().getY());
-	}
 
 	static void printPlayorInventory(key* player1, key* player2);
 

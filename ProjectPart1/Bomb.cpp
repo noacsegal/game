@@ -1,10 +1,13 @@
-#include "Bomb.h"
+//bomb.cpp
 
-void Bomb::goOff(player& p)
+#include "Bomb.h"
+#include "player.h"
+
+void Bomb::goOff(player& p1, player& p2)
 {
 	int x = place.getX() - 3;
 	int y = place.getY() - 3;
-	int x_end = place.getY() + 3;
+	int x_end = place.getX() + 3;
 	int y_end = place.getY() + 3;
 
 	//check left and top of screen
@@ -26,16 +29,27 @@ void Bomb::goOff(player& p)
 		while (y < y_end) {
 			
 			//check if bomb met a player
-			if (x == p.getBody().getX() && y == p.getBody().getY()) {
-				p.lowerLives();
+			if (x == p1.getBody().getX() && y == p1.getBody().getY()) {
+				p1.lowerLives();
+			}
+			if (x == p2.getBody().getX() && y == p2.getBody().getY()) {
+				p2.lowerLives();
 			}
 			gotoxy(x, y);
-			cout << ' ' << endl;
+			std::cout << ' ' << std::flush;
 			y++;
 		}
 		x++;
 	}
+	ticking = false;
+}
 
+void Bomb::countdown(player& p1, player& p2){
+	timer--;
+	place.draw(timer);
+	if (timer <= 0){
+		goOff(p1, p2);
+	}
 }
 
 //    3210123
