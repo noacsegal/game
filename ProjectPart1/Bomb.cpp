@@ -3,7 +3,7 @@
 #include "Bomb.h"
 #include "player.h"
 
-void Bomb::goOff(player& p1, player& p2)
+void Bomb::goOff(player& p1, player& p2, Screen& currScreen)
 {
 	int x = place.getX() - 3;
 	int y = place.getY() - 3;
@@ -35,8 +35,11 @@ void Bomb::goOff(player& p1, player& p2)
 			if (x == p2.getBody().getX() && y == p2.getBody().getY()) {
 				p2.lowerLives();
 			}
+
 			gotoxy(x, y);
-			std::cout << ' ' << std::flush;
+			std::cout << ' ' << std::flush; // change the screen we see
+			point todelete(x, y, Direction::directions[Direction::STAY], ' ');
+			currScreen.setChar(todelete, ' ');//change the actual screen
 			y++;
 		}
 		x++;
@@ -44,22 +47,19 @@ void Bomb::goOff(player& p1, player& p2)
 	ticking = false;
 }
 
-void Bomb::countdown(player& p1, player& p2){
+void Bomb::countdown(player& p1, player& p2, Screen& currScreen){
 	timer--;
-	place.draw(timer);
-	if (timer <= 0){
-		goOff(p1, p2);
-	}
-}
+	
+	//display the countdown properly
+	int display = ((timer - 1) / 12) + 1;
 
-//    3210123
-// 3  WWWWWWW
-// 2  WWWWWWW
-// 1  WWWWWWW
-// 0  WWW WWW
-// 1  WWWWWWW
-// 2  WWWWWWW
-// 3  WWWWWWW
+	if (timer > 0) {
+		place.draw(display + '0');
+	}
+
+	else
+		goOff(p1, p2, currScreen);
+}
 
 
 

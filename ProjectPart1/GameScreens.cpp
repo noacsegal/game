@@ -41,7 +41,7 @@ void GameScreens::createScreenArray() {
           "W                                                                              W",//2
           "W          K                                                            K      W",//3
           "W              W                                                               W",//4
-          "W         W @*                                                                 W",//5
+          "W         W                                                                    W",//5
           "W           W    W                                                             W",//6
           "W      W         \\                                                             W",//7
           "W          W                                                                   W",//8
@@ -49,7 +49,7 @@ void GameScreens::createScreenArray() {
           "W                                                                              W",//10
           "W                                                                              W",//11
           "W                                                                              W",//12
-          "W                                                                              W",//13
+          "W               @                                                              W",//13
           "W                                                                              W",//14
           "W                                                                              W",//15
           "W                                                                              W",//16
@@ -171,7 +171,7 @@ void GameScreens::buildLevel(int i)
             std::vector<char> statesForDoor1; // No switch states
 
             // Add the door to GameScreens storage
-            Door door1(point(10, 20, Direction::directions[Direction::STAY], '1'), keysForDoor1, switchesForDoor1, statesForDoor1);
+            Door door1(point(5, 20, Direction::directions[Direction::STAY], '1'), keysForDoor1, switchesForDoor1, statesForDoor1);
             screenDoors[i].push_back(door1);
         }
 

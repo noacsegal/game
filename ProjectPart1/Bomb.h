@@ -4,6 +4,7 @@
 #include "utillities.h"
 
 class player;
+class Screen;
 
 class Bomb
 {
@@ -18,26 +19,31 @@ private:
 public:
 	Bomb() {}
 	Bomb(point p) : place(p) {}
-	point getPlace() const {
+	point& getPlaceP() {
 		return place;
 	}
 
-	void goOff(player& p1, player& p2);
+	void goOff(player& p1, player& p2, Screen& currScreen);
 
 	void setTaken(bool flag) {
 		taken = flag;
 	}
 
+	bool getTaken() {
+		return taken;
+	}
+
 	void turnOn() {
 		ticking = true;
-		timer = 5;
+		timer = 60;//so it takes 3 seconds to explode
 	}
 
 	bool isTicking() const{
 		return ticking;
 	}
 
-	void countdown(player& p1, player& p2);
+	void countdown(player& p1, player& p2, Screen& currScreen);
+
 
 };
 

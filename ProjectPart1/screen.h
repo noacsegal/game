@@ -30,7 +30,6 @@ private:
 	}
 
 public:
-	Screen() {}
 	void createScreen(const char** content);
 
 	std::vector<Switch>& changeScreenSwitches() {

@@ -33,8 +33,8 @@ bool Door::canOpen(key* k) {
 		if (keyUsed[i]) {
 			continue; // This key has already been used
 		}
-		if (k->getPlace().getX() == my_keys[i]->getPlace().getX() &&
-			k->getPlace().getY() == my_keys[i]->getPlace().getY()) {
+		if (k->getPlaceP().getX() == my_keys[i]->getPlaceP().getX() &&
+			k->getPlaceP().getY() == my_keys[i]->getPlaceP().getY()) {
 			keyUsed[i] = true;
 			keyCounter++;
 			return true;

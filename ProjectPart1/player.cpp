@@ -85,13 +85,13 @@ bool player::move(Screen& currScreen) {
 				if (currScreen.getChar(y, x) == key::KEY) {
 
 					//check which key we are on
-					if (key1.getPlace().getX() == x && key1.getPlace().getY() == y && !key1.isTaken())
+					if (key1.getPlaceP().getX() == x && key1.getPlaceP().getY() == y && !key1.isTaken())
 						current_screen[y][x] = key::KEY;
-					else if (key2.getPlace().getX() == x && key2.getPlace().getY() == y && !key2.isTaken())
+					else if (key2.getPlaceP().getX() == x && key2.getPlaceP().getY() == y && !key2.isTaken())
 						current_screen[y][x] = key::KEY;
-					if (key1.getPlace().getX() == x && key1.getPlace().getY() == y && key1.isTaken())
+					if (key1.getPlaceP().getX() == x && key1.getPlaceP().getY() == y && key1.isTaken())
 						current_screen[y][x] = ' ';
-					else if (key2.getPlace().getX() == x && key2.getPlace().getY() == y && key2.isTaken())
+					else if (key2.getPlaceP().getX() == x && key2.getPlaceP().getY() == y && key2.isTaken())
 						current_screen[y][x] = ' ';
 
 				}

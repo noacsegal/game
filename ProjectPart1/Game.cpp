@@ -101,6 +101,7 @@ void Game::startGame() {
 
                             //take the key from the player
                             s.updateKey(nullptr);
+                            s.updateItemType(ItemType::EMPTY);
                             gs.printPlayorInventory(players[0].changeKey(), players[1].changeKey());
 
                             door.addPlayer(); // Add player to door count
@@ -120,7 +121,7 @@ void Game::startGame() {
 
                         // --- Check Collision with KEYS ---
                         for (auto& k : *currentKeys) {
-                            if (s.getBody() == k.getPlace() && !k.isTaken()) {
+                            if (s.getBody() == k.getPlaceP() && !k.isTaken()) {
                                 if (s.getItemType() == ItemType::EMPTY) {
                                     //only if player isn't holding anything and key isn't taken the player takes the key
                                     s.updateKey(&k);
@@ -141,10 +142,11 @@ void Game::startGame() {
                         //check collision with bomb
                         for (auto& b : *currentBombs) {
                             
-                            if (s.getBody() == b.getPlace()) {
+                            if (s.getBody() == b.getPlaceP()) {
                                 if (s.getItemType() == ItemType::EMPTY) {
                                     s.updateBomb(&b);
                                     s.updateItemType(ItemType::BOMB);
+                                    b.setTaken(true);
                                 }
                             }
                         }
@@ -167,8 +169,8 @@ void Game::startGame() {
                         }
 
                         for (auto& b : *currentBombs) {
-                            if (!b.isTicking())
-                                b.getPlace().draw();
+                            if (!b.getTaken())
+                                b.getPlaceP().draw();
                         }
 
                         // 4. Draw Players
@@ -176,6 +178,7 @@ void Game::startGame() {
                             if (!playerFinished[j]) players[j].draw();
                         }
                     }
+                    //for riddle
                     else {
                         restart = true;
                         running = false;
@@ -189,7 +192,7 @@ void Game::startGame() {
             //check iteration for bomb
             for (auto& b : *currentBombs) {
                 if (b.isTicking()) {
-                    b.countdown(players[0], players[1]);
+                    b.countdown(players[0], players[1], *currScreenPtr);
                 }
             }
 
@@ -239,6 +242,7 @@ void Game::startGame() {
             // --- Input Handling (Pause/Exit) ---
             if (_kbhit()) {
                 char keyBoard = _getch();
+                //if we pressed ESC- pause and check if we are restarting 
                 if (keyBoard == KeyBoardKeys::ESC) {
                     gotoxy(0, Screen::MAX_Y);
                     std::cout << "Paused. 'h' to home, ESC to continue.                                                     " << std::flush;
@@ -255,25 +259,28 @@ void Game::startGame() {
                 }
                 
                 else {
+                    //if we pressed a direction key
+
                     for (int i = 0; i < GameScreens::NUM_OF_PLAYERS; i++) {
                         if (!playerFinished[i]) players[i].keyPressed(std::tolower(keyBoard));
                     }
 
-                    //***********************************************************************************************************************************************************************************************************************************
                     //if player let go of an element
                     for (auto& p : players) {
                         //if we pressed the char to get rid od something and we're holding something
                         if (keyBoard == p.getDisposeChar() && p.getItemType() != ItemType::EMPTY) {
 
                             if (p.getItemType() == ItemType::KEY) {
+                                p.changeKey()->getPlaceP().changePosition(p.getBody().getX(), p.getBody().getY(), Direction::directions[Direction::STAY]);//change position of key
                                 p.changeKey()->changeTaken(false); //key knows it isnt being held
                                 p.updateKey(nullptr); //player doesnt have key
-                                p.updateItemType(ItemType::EMPTY); // the player knows it itst holding an item
-                                p.changeKey()->getPlace().changePosition(p.getBody().getX(), p.getBody().getY(), Direction::directions[Direction::STAY]);//change position of key
+                                p.updateItemType(ItemType::EMPTY); // the player knows it isn't holding an item
+
                             }
 
                             else if (p.getItemType() == ItemType::BOMB) {
                                 p.changeBomb()->turnOn();
+                                p.changeBomb()->getPlaceP().changePosition(p.getBody().getX(), p.getBody().getY(), Direction::directions[Direction::STAY]);//change position of bomb
                                 p.updateBomb(nullptr);
                                 p.updateItemType(ItemType::EMPTY);
                             }

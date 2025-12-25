@@ -14,7 +14,7 @@ private:
 public:
 	key(point p) : place(p) {}
 
-	point getPlace() const {
+	point& getPlaceP() {
 		return place;
 	}
 
