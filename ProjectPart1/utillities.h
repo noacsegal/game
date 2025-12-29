@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 #include <memory>
+#include <filesystem>
 
 enum class ItemType { EMPTY, KEY, BOMB, TORCH };
 

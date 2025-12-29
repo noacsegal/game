@@ -10,5 +10,6 @@ class Game
 public:
 
 	void startGame();
+	void startingScreen();
 };
 

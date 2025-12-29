@@ -6,12 +6,25 @@
 
 #include <windows.h>
 #include <conio.h>
-#include "utillities.h"
-
+#include "utillities.h"\
+#include "files.h"
 
 enum KeyBoardKeys { ESC = 27, HOME = 104, SPACE = 32 };
 
+void startingScreen() {
+    bool flag = true;
+    while (flag) {
+        if (_kbhit()) {
+            char keyBoard = _getch();
+            if (keyBoard == KeyBoardKeys::SPACE) {
+                cls();
+                flag = false;
+            }
+        }
+        Sleep(10);
+    }
 
+}
 
 
 void Game::startGame() {
@@ -25,6 +38,7 @@ void Game::startGame() {
 
         //create screen
         GameScreens gs;
+        files allfiles;
         gs.createScreenArray();
 
         int indexScreen = 0;
@@ -34,19 +48,9 @@ void Game::startGame() {
 
 
         //waits to start the game
-        while (running) {
-            if (_kbhit()) {
-                char keyBoard = _getch();
-                if (keyBoard == KeyBoardKeys::SPACE) {
-                    indexScreen++;
-                    cls();
-                    running = false;
-                }
-            }
-            Sleep(10);
-        }
+        startingScreen();
+        indexScreen++;
 
-        running = true;
         gs.buildLevel(indexScreen);
         currScreenPtr = &gs.changeScreeni(indexScreen);
 

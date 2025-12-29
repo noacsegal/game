@@ -15,7 +15,6 @@ public:
 	static constexpr char NUM_OF_GAME_SCREENS = 2;
 	static constexpr char NUM_OF_PLAYERS = 2;
 
-
 private:
 	//data members
 	//IMPORTANT: the gameScreens first and last index are not playing screens

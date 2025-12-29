@@ -18,19 +18,22 @@ public:
 
 
 private:
-	char screen[MAX_Y][MAX_X + 1];
+	char originalScreen[MAX_Y][MAX_X + 1];
+	char currentScreen[MAX_Y][MAX_X + 1];
 	std::vector < key> screenKeys;
 	std::vector <Switch> screenSwitches;
 	std::vector <Door> screenDoors;
 	std::vector <Bomb> screenBombs;
+	point startPosPlayer1 = { 0,0, Direction::directions[Direction::STAY], '$'};
+	point startPosPlayer2 = { 0,0, Direction::directions[Direction::STAY], '&'};
 
-	//return the char from a specific point of the screen
+	//return the char from a specific point of the  current screen
 	char charAt(const point& p) const {
-		return screen[p.getY()][p.getX()];
+		return currentScreen[p.getY()][p.getX()];
 	}
 
 public:
-	void createScreen(const char** content);
+	void createScreenLine(const char* content, int i);
 
 	std::vector<Switch>& changeScreenSwitches() {
 		return screenSwitches;
@@ -44,8 +47,8 @@ public:
 		return screenBombs;
 	}
 
-	char getChar(int y, int x) const {
-		return screen[y][x];
+	char getChar(point& p) const {
+		return currentScreen[p.getY()][p.getX()];
 	}
 
 	//checks if point is the ch we are looking for
@@ -55,7 +58,7 @@ public:
 
 	//checks if a specific spot has a char
 	bool isFree(int x, int y) const {
-		char xy = screen[y][x];
+		char xy = currentScreen[y][x];
 		return xy == ' ';
 	}
 
@@ -71,8 +74,17 @@ public:
 	//puts a char onto the screen array
 	void setChar(const point& p, char ch) {
 		if (p.getX() >= 0 && p.getX() < MAX_X && p.getY() >= 0 && p.getY() < MAX_Y) {
-			screen[p.getY()][p.getX()] = ch;
+			currentScreen[p.getY()][p.getX()] = ch;
 		}
+	}
+
+	//ADD ON
+
+	point& player1posRef() {
+		return startPosPlayer1;
+	}
+	point& player2posRef() {
+		return startPosPlayer2;
 	}
 };
 
