@@ -6,19 +6,18 @@
 #include "Bomb.h"
 
 
-void Screen::createScreen(const char** content)
+void Screen::createScreenLine(const char* content, int i)
 {
-	for (int i = 0; i < MAX_Y; i++)
-	{
-		strcpy_s(this->screen[i], (MAX_X), content[i]);
-	}
+	strcpy_s(this->currentScreen[i], (MAX_X), content);
+	strcpy_s(this->originalScreen[i], (MAX_X), content);
+	
 }
 
 
 //draws the entire screen
 void Screen::draw() const {
 	int y = 0;
-	for (const auto& row : screen) {
+	for (const auto& row : currentScreen) {
 		gotoxy(0, y++);
 		std::cout << row << std::flush;
 	}
@@ -30,7 +29,7 @@ void Screen::createKeyArray()
 {
 	for (int row = 0; row < MAX_Y; row++) {
 		for (int col = 0; col < MAX_X; col++) {
-			point p = point(col, row, Direction::directions[Direction::STAY], screen[row][col]);
+			point p = point(col, row, Direction::directions[Direction::STAY], originalScreen[row][col]);
 			if (isChar(p, key::KEY)) {
 				key k = { p };
 				screenKeys.push_back(k);
@@ -47,13 +46,17 @@ void Screen::createSwitchArray()
 		// Iterate columns (x)
 		for (int x = 0; x < MAX_X; ++x) {
 
-			char ch = screen[y][x];
+			char ch = originalScreen[y][x];
 
 			// Check if this character is one of the switch states
 			if (ch == Switch::OPEN || ch == Switch::CLOSED) {
 				// Save the location
 				point p = { x, y, Direction::directions[Direction::STAY] , ch };
 				Switch sw = { p, false };
+
+				if (ch == Switch::OPEN) {
+					sw.toggle();
+				}
 				screenSwitches.push_back(sw);
 			}
 		}
@@ -64,13 +67,38 @@ void Screen::createBombArray()
 {
 	for (int row = 0; row < MAX_Y; row++) {
 		for (int col = 0; col < MAX_X; col++) {
-			point p = point(col, row, Direction::directions[Direction::STAY], screen[row][col]);
+			point p = point(col, row, Direction::directions[Direction::STAY], originalScreen[row][col]);
 			if (isChar(p, Bomb::BOMB)) {
 				Bomb b = { p };
 				screenBombs.push_back(b); 
 			}
 		}
 	}
+}
+
+void Screen::createDoorArray(){
+	for (int row = 0; row < MAX_Y; row++) {
+		for (int col = 0; col < MAX_X; col++) {
+			char c = originalScreen[row][col];
+			point p = point(col, row, Direction::directions[Direction::STAY], c);
+			
+			//check if c is a number
+			if (c + '0' >= '1' && c + '0' <= '9') {
+				Door d = { p };
+				screenDoors.push_back(d);
+			}
+		}
+	}
+}
+
+//gets a char that represents the char of the door and finds which place in the vector that door is
+int Screen::getDoorID(char id)
+{
+	for (int i = 0; i < screenDoors.size(); i++) {
+		if (screenDoors[i].GetDoorChar() == id)
+			return i;
+	}
+	return -1;//if not found
 }
 
 

@@ -12,7 +12,7 @@ class GameScreens
 {
 public:
 	static constexpr char NUM_OF_SCREENS = 4;
-	static constexpr char NUM_OF_GAME_SCREENS = 2;
+	static constexpr char NUM_OF_GAME_SCREENS = 4;
 	static constexpr char NUM_OF_PLAYERS = 2;
 
 private:
@@ -27,7 +27,7 @@ private:
 
 public:
 	GameScreens() {}
-	void createScreenArray();
+	bool createScreenArray();
 	Screen& changeScreeni(int i) {
 		return gameScreens[i];
 	}

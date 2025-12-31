@@ -21,7 +21,7 @@ private:
 	int playerCounter = 0; //counts how many players have gone through the door
 
 public:
-	Door() {}
+	Door(point _place): place(_place) {}
 
 	Door(point _place, std::vector<key*> keys, std::vector<Switch*> switches, std::vector<char> states) :
 		place(_place), my_keys(keys), my_switches(switches), switch_states(states)  {
@@ -67,9 +67,6 @@ public:
 		keyCounter++;
 	}
 
-	//debugging function
-	int getPlayerCounter() {
-		return playerCounter;
-	}
+	
 };
 

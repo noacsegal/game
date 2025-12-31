@@ -6,8 +6,7 @@
 
 #include <windows.h>
 #include <conio.h>
-#include "utillities.h"\
-#include "files.h"
+#include "utillities.h"
 
 enum KeyBoardKeys { ESC = 27, HOME = 104, SPACE = 32 };
 
@@ -38,7 +37,8 @@ void Game::startGame() {
 
         //create screen
         GameScreens gs;
-        files allfiles;
+        
+
         gs.createScreenArray();
 
         int indexScreen = 0;

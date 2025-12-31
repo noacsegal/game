@@ -42,3 +42,5 @@ bool Door::canOpen(key* k) {
 	}
 	return false;
 }
+
+

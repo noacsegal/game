@@ -1,0 +1,35 @@
+01234567890123456789012345678901234567890123456789012345678901234567890123456789
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW1WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+W                                      *                                       W
+W WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW   WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  W
+W W *   W                            W  *W                            W    * W W
+W W  *W W                            W * W                            W W *  W W
+W W K W W                            W   W                            W W   KW W
+W WWWWW W                            W  *W                            W WWWWWW W
+W       W                            W * W                            W        W
+WWWWWWWWW                            W*  W                            WWWWWWWWWW
+W                                    W  *W                                     W
+W             WWWWWWWWWWWWWWWWWWWWWWWW   WWWWWWWWWWWWWWWWWWWWWWWWW             W
+W             W                                                  W             W
+W             W                                                  W             W
+W             W  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  W             W
+W             W  W                                            W  W             W
+W             W  W                                            W  W             W
+W             W  W  WWWWWWWWWWWWWWWWWW    WWWWWWWWWWWWWWWWWW  W  W             W
+W             W  W  W              W   * W              W  W  W  W             W
+W             W  W  W              W \\      W              W  W  W             W
+WWWWWWWWWWWWWWW  W  W              W * * W              W  W  W  WWWWWWWWWWWWWWW
+W                W  W              W        W              W  W                W
+W                W  W              W        W              W  W                W
+W                                                                              W
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+
+Q
+# DOOR [ID] [TARGET_SCREEN] [KEY_COUNT] [SWITCH_COUNT]
+DOOR 1 02 2 1
+1 2     # the position of the keys that are needed in the vector 
+10          
+
+DOOR 2 03 1 0
+0        
+D

@@ -7,6 +7,26 @@ class files
 
 
 public:
-	bool getAllBoardFileNames();
+	static constexpr char END_SCREEN = 'Q';
+
+	files(){}
+	bool getAllScreenFileNames();
+
+	std::vector<std::string> fileNameRef() {
+		return fileNames;
+	}
+
+	bool createScreen(std::ifstream& screenFile, Screen& screenToFill);
+
+	bool createMetaData(std::ifstream& screenFile, Screen& screenToFill);
+
 };
 
+
+
+//file errors: 
+//couldnt open
+//no posotion for either players
+//screen too big or too small
+//no legend
+//nothing after the screen - need at least one door

@@ -132,6 +132,7 @@
     <ClInclude Include="Bomb.h" />
     <ClInclude Include="direction.h" />
     <ClInclude Include="Door.h" />
+    <ClInclude Include="files.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameScreens.h" />
     <ClInclude Include="key.h" />
@@ -146,6 +147,7 @@
     <ClCompile Include="Bomb.cpp" />
     <ClCompile Include="direction.cpp" />
     <ClCompile Include="Door.cpp" />
+    <ClCompile Include="files.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameScreens.cpp" />
     <ClCompile Include="key.cpp" />

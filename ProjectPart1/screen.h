@@ -24,8 +24,8 @@ private:
 	std::vector <Switch> screenSwitches;
 	std::vector <Door> screenDoors;
 	std::vector <Bomb> screenBombs;
-	point startPosPlayer1 = { 0,0, Direction::directions[Direction::STAY], '$'};
-	point startPosPlayer2 = { 0,0, Direction::directions[Direction::STAY], '&'};
+	point startPosPlayer1 = { 0,0, Direction::directions[Direction::STAY], ' '};
+	point startPosPlayer2 = { 0,0, Direction::directions[Direction::STAY], ' '};
 
 	//return the char from a specific point of the  current screen
 	char charAt(const point& p) const {
@@ -74,7 +74,7 @@ public:
 	//puts a char onto the screen array
 	void setChar(const point& p, char ch) {
 		if (p.getX() >= 0 && p.getX() < MAX_X && p.getY() >= 0 && p.getY() < MAX_Y) {
-			currentScreen[p.getY()][p.getX()] = ch;
+			originalScreen[p.getY()][p.getX()] = ch;
 		}
 	}
 
@@ -85,6 +85,29 @@ public:
 	}
 	point& player2posRef() {
 		return startPosPlayer2;
+	}
+
+	void updatePlayer1Pos(point p) {
+		startPosPlayer1 = p;
+	}
+	void updatePlayer1Pos(point p) {
+		startPosPlayer1 = p;
+	}
+
+	void updatePlayer2Pos(point p) {
+		startPosPlayer2 = p;
+	}
+
+	void createDoorArray();
+
+	Door* getDoorID(char id);
+
+	key* specificKeyRef(int i) {
+		return &screenKeys[i];
+	}
+
+	Switch* specificSwitchRef(int i) {
+		return &screenSwitches[i];
 	}
 };
 
