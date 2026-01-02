@@ -13,10 +13,9 @@ void point::move() {
 	y += dir.diry;
 }
 
-void point::changePosition(int new_x, int new_y, Direction new_direction) {
-	x = new_x;
-	y = new_y;
-	dir = new_direction;
+void point::changePosition(point newp) {
+	x = newp.getX();
+	y = newp.getY();
 }
 
 

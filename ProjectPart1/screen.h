@@ -35,16 +35,20 @@ private:
 public:
 	void createScreenLine(const char* content, int i);
 
-	std::vector<Switch>& changeScreenSwitches() {
+	std::vector<Switch>& screenSwitchesByRef() {
 		return screenSwitches;
 	}
 
-	std::vector<key>& changeScreenKeys() {
+	std::vector<key>& screenKeysByRef() {
 		return screenKeys;
 	}
 
-	std::vector <Bomb>& changeScreenBombs() {
+	std::vector <Bomb>& screenBombsByRef() {
 		return screenBombs;
+	}
+
+	std::vector <Door>& screenDoorByRef() {
+		return screenDoors;
 	}
 
 	char getChar(point& p) const {
@@ -102,12 +106,12 @@ public:
 
 	Door* getDoorID(char id);
 
-	key* specificKeyRef(int i) {
-		return &screenKeys[i];
-	}
+	key* specificKeyRef(int i);
 
-	Switch* specificSwitchRef(int i) {
-		return &screenSwitches[i];
+	Switch* specificSwitchRef(int i);
+
+	int getDoorVectorSize() {
+		return screenDoors.size();
 	}
 };
 

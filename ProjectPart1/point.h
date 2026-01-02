@@ -13,6 +13,7 @@ public:
 	point() {}
 	//there is start point a direction (usely will be stay at the start) and charecter
 	point(int x1, int y1, const Direction& the_dir, char c) : x(x1), y(y1), ch(c), dir(the_dir) {}
+	point(int x1, int y1) : x(x1), y(y1){}
 
 	//draw, default is the character that the point is
 	void draw() {
@@ -49,7 +50,7 @@ public:
 	void move();
 
 	//change position when on new screen
-	void changePosition(int new_x, int new_y, Direction new_direction);
+	void changePosition(point newp);
 
 	//function written by AI
 	bool operator==(const point& other) const {

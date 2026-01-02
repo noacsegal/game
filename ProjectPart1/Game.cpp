@@ -8,14 +8,13 @@
 #include <conio.h>
 #include "utillities.h"
 
-enum KeyBoardKeys { ESC = 27, HOME = 104, SPACE = 32 };
 
 void startingScreen() {
     bool flag = true;
     while (flag) {
         if (_kbhit()) {
             char keyBoard = _getch();
-            if (keyBoard == KeyBoardKeys::SPACE) {
+            if (keyBoard == Game::KeyBoardKeys::SPACE) {
                 cls();
                 flag = false;
             }
@@ -39,10 +38,10 @@ void Game::startGame() {
         GameScreens gs;
         
 
-        gs.createScreenArray();
+        gs.LoadGameScreens();
 
         int indexScreen = 0;
-        Screen* currScreenPtr = &gs.changeScreeni(indexScreen);
+        Screen* currScreenPtr = &gs.startScreenByRef();
         currScreenPtr->draw();
         bool running = true; //is false at the end of the game
 
@@ -51,24 +50,26 @@ void Game::startGame() {
         startingScreen();
         indexScreen++;
 
-        gs.buildLevel(indexScreen);
-        currScreenPtr = &gs.changeScreeni(indexScreen);
+        currScreenPtr = &gs.ScreeniByRef(indexScreen);
 
-        std::vector<Door>* currentDoors = &gs.changeDoori(indexScreen);
-        std::vector<Switch>* currentSwitches = &currScreenPtr->changeScreenSwitches();
-        std::vector<key>* currentKeys = &currScreenPtr->changeScreenKeys();
-        std::vector<Bomb>* currentBombs = &currScreenPtr->changeScreenBombs();
+        std::vector<Door>* currentDoors = &currScreenPtr->screenDoorByRef();
+        std::vector<Switch>* currentSwitches = &currScreenPtr->screenSwitchesByRef();
+        std::vector<key>* currentKeys = &currScreenPtr->screenKeysByRef();
+        std::vector<Bomb>* currentBombs = &currScreenPtr->screenBombsByRef();
 
         //create two players
         player players[] = {
-            player(point(10, 21, Direction::directions[Direction::STAY], '$'), "wdxas", 'e'),
-            player(point(70, 21, Direction::directions[Direction::STAY], '&'), "ilmjk", 'o')
+            player(currScreenPtr->player1posRef(), "wdxas", 'e'),
+            player(currScreenPtr->player2posRef(), "ilmjk", 'o')
         };
+
+        players[0].changeBodyChar('&');
+        players[1].changeBodyChar('$');
 
         // Track which player has finished the current level
         bool playerFinished[GameScreens::NUM_OF_PLAYERS] = { false, false };
 
-        gs.printPlayorInventory(players[0].changeKey(), (players[1].changeKey()));
+        gs.printPlayorInventory(point(0, Screen::MAX_Y), players[0], players[1]);
         currScreenPtr->draw();
 
         //draw players
@@ -106,7 +107,7 @@ void Game::startGame() {
                             //take the key from the player
                             s.updateKey(nullptr);
                             s.updateItemType(ItemType::EMPTY);
-                            gs.printPlayorInventory(players[0].changeKey(), players[1].changeKey());
+                            gs.printPlayorInventory(point(0, Screen::MAX_Y), players[0], players[1]);
 
                             door.addPlayer(); // Add player to door count
 
@@ -121,7 +122,7 @@ void Game::startGame() {
                     
                     // Check wall collisions / puzzles
                     if (s.move(*currScreenPtr)) {
-                        gs.printPlayorInventory(players[0].changeKey(), players[1].changeKey());
+                        gs.printPlayorInventory(point(0, Screen::MAX_Y), players[0], players[1]);
 
                         // --- Check Collision with KEYS ---
                         for (auto& k : *currentKeys) {
@@ -132,7 +133,7 @@ void Game::startGame() {
                                     k.changeTaken(true);
                                     s.updateItemType(ItemType::KEY);
                                 }
-                                gs.printPlayorInventory(players[0].changeKey(), players[1].changeKey());
+                                gs.printPlayorInventory(point(0, Screen::MAX_Y), players[0], players[1]);
                             }
                         }
 
@@ -201,8 +202,6 @@ void Game::startGame() {
             }
 
             bool levelComplete = false;
-            //********************************************************************************************************************************
-            // ADD: CHECK IF PLAYERS WENT THROUGH DIFFRENT DOORS AND WHAT TO DO
             //check if players left screen
             
             if (playerFinished[0] && playerFinished[1]) {
@@ -210,7 +209,7 @@ void Game::startGame() {
 
                 // Check if End of Game
                 if (indexScreen == GameScreens::NUM_OF_SCREENS - 1) {
-                    currScreenPtr = &gs.changeScreeni(indexScreen); // End screen
+                    currScreenPtr = &gs.endScreenByRef(); // End screen
                     cls();
                     currScreenPtr->draw();
                     running = false;
@@ -218,11 +217,10 @@ void Game::startGame() {
 
                 else {
                     //next level setup
-                    gs.buildLevel(indexScreen);
-                    currScreenPtr = &gs.changeScreeni(indexScreen);
-                    currentDoors = &gs.changeDoori(indexScreen);
-                    currentSwitches = &currScreenPtr->changeScreenSwitches();
-                    currentKeys = &currScreenPtr->changeScreenKeys();
+                    currScreenPtr = &gs.ScreeniByRef(indexScreen);
+                    currentDoors = &currScreenPtr->screenDoorByRef();
+                    currentSwitches = &currScreenPtr->screenSwitchesByRef();
+                    currentKeys = &currScreenPtr->screenKeysByRef();
                 }
 
 
@@ -230,8 +228,8 @@ void Game::startGame() {
                 currScreenPtr->draw();
 
                 // Reset Players
-                players[0].bodyToChange().changePosition(30, 10, Direction::directions[Direction::STAY]);
-                players[1].bodyToChange().changePosition(32, 10, Direction::directions[Direction::STAY]);
+                players[0].moveScreen(currScreenPtr->player1posRef());
+                players[1].moveScreen(currScreenPtr->player2posRef());
                 players[0].updateKey(nullptr);
                 players[1].updateKey(nullptr);
 
@@ -240,7 +238,7 @@ void Game::startGame() {
 
                 players[0].draw();
                 players[1].draw();
-                gs.printPlayorInventory(players[0].changeKey(), players[1].changeKey());
+                gs.printPlayorInventory(point(0, Screen::MAX_Y), players[0], players[1]);
             }
 
             // --- Input Handling (Pause/Exit) ---
@@ -258,7 +256,7 @@ void Game::startGame() {
                     else if (tolower(keyBoard) == ESC) {
                         gotoxy(0, Screen::MAX_Y);
                         std::cout << "                                                                                ";
-                        gs.printPlayorInventory(players[0].changeKey(), players[1].changeKey());
+                        gs.printPlayorInventory(point(0, Screen::MAX_Y), players[0], players[1]);
                     }
                 }
                 
@@ -275,7 +273,7 @@ void Game::startGame() {
                         if (keyBoard == p.getDisposeChar() && p.getItemType() != ItemType::EMPTY) {
 
                             if (p.getItemType() == ItemType::KEY) {
-                                p.changeKey()->getPlaceP().changePosition(p.getBody().getX(), p.getBody().getY(), Direction::directions[Direction::STAY]);//change position of key
+                                p.changeKey()->getPlaceP().changePosition(p.getBody());//change position of key
                                 p.changeKey()->changeTaken(false); //key knows it isnt being held
                                 p.updateKey(nullptr); //player doesnt have key
                                 p.updateItemType(ItemType::EMPTY); // the player knows it isn't holding an item
@@ -284,7 +282,7 @@ void Game::startGame() {
 
                             else if (p.getItemType() == ItemType::BOMB) {
                                 p.changeBomb()->turnOn();
-                                p.changeBomb()->getPlaceP().changePosition(p.getBody().getX(), p.getBody().getY(), Direction::directions[Direction::STAY]);//change position of bomb
+                                p.changeBomb()->getPlaceP().changePosition(p.getBody());//change position of bomb
                                 p.updateBomb(nullptr);
                                 p.updateItemType(ItemType::EMPTY);
                             }

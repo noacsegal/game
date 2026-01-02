@@ -18,40 +18,35 @@ public:
 private:
 	//data members
 	//IMPORTANT: the gameScreens first and last index are not playing screens
-	// the keys for gamescreens[i] is in screenKeys[i - 1] (because of the start screen)
 	std::vector <Screen> gameScreens;
-	std::vector <std::vector<key>> screenKeys; // vector of key arrays for each screen
-	std::vector <std::vector<Door>> screenDoors;
-	std::vector <std::vector<Switch>> screenSwitches;
-	std::vector <std::vector<Bomb>> screenBombs;
+	Screen startScreen;
+	Screen endScreen;
+	//*************************************************************************************************************************
+	// PRETTY SURE WE NEVER ACTUALLY USE THIS
+	//std::vector <std::vector<key>> screenKeys; // vector of key arrays for each screen
+	//std::vector <std::vector<Door>> screenDoors;
+	//std::vector <std::vector<Switch>> screenSwitches;
+	//std::vector <std::vector<Bomb>> screenBombs;
 
 public:
 	GameScreens() {}
-	bool createScreenArray();
-	Screen& changeScreeni(int i) {
+	bool LoadGameScreens();
+	void fillAddedData(Screen& screen);
+
+	Screen& ScreeniByRef(int i) {
 		return gameScreens[i];
 	}
 
-	std::vector<key>& changeKeyArray(int i)  {
-		return screenKeys[i];
+	static void printPlayorInventory(point topLeft, player& p1, player& p2);
+
+	void createStartAndEndScreen();
+
+	Screen& endScreenByRef() {
+		return endScreen;
 	}
 
-	std::vector<Switch>& changeSwitchArray(int i)  {
-		return screenSwitches[i];
+	Screen& startScreenByRef() {
+		return startScreen;
 	}
-
-	std::vector <Door>& changeDoori(int i) {
-		return screenDoors[i];
-	}
-
-	std::vector <Bomb>& Bombi(int i) {
-		return screenBombs[i];
-	}
-
-	void buildLevel(int i);
-
-
-	static void printPlayorInventory(key* player1, key* player2);
-
 };
 

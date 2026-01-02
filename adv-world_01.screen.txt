@@ -13,7 +13,7 @@ W             WWWWWWWWWWWWWWWWWWWWWWWW   WWWWWWWWWWWWWWWWWWWWWWWWW             W
 W             W                                                  W             W
 W             W                                                  W             W
 W             W  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  W             W
-W             W  W                                            W  W             W
+W             W  W                                            W  W        K    W
 W             W  W                                            W  W             W
 W             W  W  WWWWWWWWWWWWWWWWWW    WWWWWWWWWWWWWWWWWW  W  W             W
 W             W  W  W              W   * W              W  W  W  W             W
@@ -25,11 +25,10 @@ W                                                                              W
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 
 Q
-# DOOR [ID] [TARGET_SCREEN] [KEY_COUNT] [SWITCH_COUNT]
-DOOR 1 02 2 1
-1 2     # the position of the keys that are needed in the vector 
-10          
-
-DOOR 2 03 1 0
+DOOR 1 2 1
+0 1     
 0        
+
+DOOR 2 1 0
+2       
 D

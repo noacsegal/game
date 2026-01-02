@@ -1,5 +1,8 @@
 #include "files.h"
 #include "Screen.h"
+#include "Game.h"
+#include <conio.h>
+
 
 
 //function from lab with changes- return false if no files were found
@@ -13,11 +16,14 @@ bool files::getAllScreenFileNames()
 			fileNames.push_back(filenameStr);
 		}
 	}
+	if (fileNames.empty()) {
+		errorFunction("No files found");
+		return false;
+	}
+
 	//sort the files 
 	std::sort(fileNames.begin(), fileNames.end());
-	if (fileNames.empty()) {
-		false;
-	}
+	
 	return true;
 }
 
@@ -34,6 +40,7 @@ bool files::createScreen(std::ifstream& screenFile, Screen& screenToFill){
 
 			//screen is too small
 			if (curr_col < Screen::MAX_X) {
+				errorFunction("Screen is too small");
 				return false;
 			}
 			++curr_row;
@@ -55,6 +62,7 @@ bool files::createScreen(std::ifstream& screenFile, Screen& screenToFill){
 
 	screenFile.close();
 	if (curr_row < Screen::MAX_Y) {
+		errorFunction("Screen is too small");
 		return false;
 	}
 	return true;
@@ -69,12 +77,18 @@ bool files::createMetaData(std::ifstream& screenFile, Screen& screenToFill)
 			int id, kCount, sCount;
 
 			//makes sure we can read all the data
-			if (!(screenFile >> id >>  kCount >> sCount)) return false;
+			if (!(screenFile >> id >> kCount >> sCount)) {
+				errorFunction("Not enough meta data");
+				return false;
+			}
 
 			Door* d;
 			d = screenToFill.getDoorID(id);
 
-			if (d == nullptr) return false;
+			if (d == nullptr) {
+				errorFunction("Invalid door");
+				return false;
+			}
 
 			for (int i = 0; i < kCount; ++i) {
 
@@ -82,7 +96,10 @@ bool files::createMetaData(std::ifstream& screenFile, Screen& screenToFill)
 				int keyId;
 				screenFile >> keyId;
 				key* key = screenToFill.specificKeyRef(keyId);
-				if (key == nullptr) return false;
+				if (key == nullptr) {
+					errorFunction("Invalid key");
+					return false;
+				}
 				d->addKeyToVector(key);
 			}
 
@@ -92,15 +109,34 @@ bool files::createMetaData(std::ifstream& screenFile, Screen& screenToFill)
 				int swId;
 				screenFile >> swId;
 				Switch* sw = screenToFill.specificSwitchRef(swId);
-				if (sw == nullptr) return false;
+				if (sw == nullptr) {
+					errorFunction("Invalid switch");
+					return false;
+				}
 				d->addSwitchToVector(sw);
 			}
 		}
 	}
 
-	//if no doors wee added
-	if (screenToFill.getDoorVectorSize() == 0) return false;
-
+	//if no doors where added
+	if (screenToFill.getDoorVectorSize() == 0) {
+		errorFunction("No door");
+		return false;
+	}
 
 	return true;
+}
+
+void files::errorFunction(std::string cause)
+{
+	cls();
+	std::cout << "Game wa stopped because: " << cause << std::endl;
+	std::cout << "Press escape to exit the program" << std::endl;
+
+	//wait for escape char
+	while (true) {
+		if (_kbhit()) {
+			if (_getch() == Game::KeyBoardKeys::ESC) return;
+		}
+	}
 }

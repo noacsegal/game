@@ -92,14 +92,33 @@ void Screen::createDoorArray(){
 }
 
 //gets a char that represents the char of the door and finds which place in the vector that door is
-int Screen::getDoorID(char id)
+Door* Screen::getDoorID(char id)
 {
 	for (int i = 0; i < screenDoors.size(); i++) {
 		if (screenDoors[i].GetDoorChar() == id)
-			return i;
+			return &screenDoors[i];
 	}
-	return -1;//if not found
+	return nullptr;//if not found
 }
+
+key* Screen::specificKeyRef(int i)
+{
+
+	if (i >= 0 && i < screenKeys.size())
+		return &screenKeys[i];
+	else
+		return nullptr;
+}
+
+Switch* Screen::specificSwitchRef(int i)
+{
+	if (i >= 0 && i < screenSwitches.size())
+		return &screenSwitches[i];
+	else
+		return nullptr;
+}
+
+
 
 
 

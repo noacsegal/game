@@ -7,7 +7,9 @@
 
 class Game
 {
+
 public:
+	enum KeyBoardKeys { ESC = 27, HOME = 104, SPACE = 32 };
 
 	void startGame();
 	void startingScreen();

@@ -81,6 +81,13 @@ public:
 		return dispose;
 	}
 
+	void changeBodyChar(char c) {
+		body.changeChar(c);
+	}
+
+	void moveScreen(point p) {
+		body.changePosition(p);
+	}
 };
 
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "utillities.h"
+#include <fstream>
 
 class files
 {
@@ -19,6 +20,8 @@ public:
 	bool createScreen(std::ifstream& screenFile, Screen& screenToFill);
 
 	bool createMetaData(std::ifstream& screenFile, Screen& screenToFill);
+
+	void errorFunction(std::string cause);
 
 };
 
