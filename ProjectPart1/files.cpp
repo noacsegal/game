@@ -38,7 +38,7 @@ bool files::createScreen(std::ifstream& screenFile, Screen& screenToFill){
 	
 	//we are not at the end of the screen or past the last row
 	screenFile.get(c);
-	while (c != END_SCREEN && curr_row < Screen::MAX_Y) {
+	while (c != END_SCREEN) {
 		if (c == '\n') {
 
 			//screen is too small
@@ -55,7 +55,12 @@ bool files::createScreen(std::ifstream& screenFile, Screen& screenToFill){
 			screenFile.get(c);
 			continue;
 		}
-		point p = { curr_col, curr_row};
+		point p = { curr_col, curr_row };
+
+		if (c == 'L') {
+			screenToFill.updateLegendPos(p);
+			continue;
+		}
 
 		if (curr_col < Screen::MAX_X) {
 			// check where the players are supposed to be
@@ -127,6 +132,10 @@ bool files::createMetaData(std::ifstream& screenFile, Screen& screenToFill)
 				}
 				d->addSwitchToVector(sw);
 			}
+		}
+		if (word == "L") {
+			point p = { 0, 26 };
+			screenToFill.updateLegendPos(p);
 		}
 	}
 

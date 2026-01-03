@@ -11,8 +11,6 @@
 class GameScreens
 {
 public:
-	static constexpr char NUM_OF_SCREENS = 4;
-	static constexpr char NUM_OF_GAME_SCREENS = 4;
 	static constexpr char NUM_OF_PLAYERS = 2;
 
 private:
@@ -40,6 +38,11 @@ public:
 
 	Screen& startScreenByRef() {
 		return startScreen;
+	}
+
+	//added ***************************************************************************************************************
+	size_t numOfScreens() {
+		return gameScreens.size();
 	}
 };
 

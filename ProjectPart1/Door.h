@@ -33,8 +33,6 @@ public:
 		place.draw();
 	}
 
-	void intializekeyUsed();
-
 	bool switchStatesCorrect();
 
 	int getPlayerCounter() const {
@@ -58,7 +56,7 @@ public:
 	}
 
 
-	bool canOpen(key* k);
+	bool keyForDoor(key* k);
 
 	void addPlayer() {
 		playerCounter++;
@@ -77,7 +75,9 @@ public:
 
 	void addSwitchToVector(Switch* sw) {
 		my_switches.push_back(sw);
-		switch_states.push_back(sw->getPlace().getChar());
+		switch_states.push_back(Switch::OPEN);
 	}
+
+	bool canOpen();
 };
 

@@ -1,33 +1,30 @@
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW1WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-W                                      *                                       W
-W WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW   WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  W
+W                                                                              W
+W WWWWWWWWWWWWWWWWWWWWWWWWW    WWWWWWW   WWWW   WWWWWWWWWWWWWWWWWWWWWWWWWWWWW  W
 W W *   W                            W  *W                            W    * W W
 W W  *W W                            W * W                            W W *  W W
-W W K W W                            W   W                            W W   KW W
-W WWWWW W                            W  *W                            W WWWWWW W
-W       W                            W * W                            W        W
-WWWWWWWWW                            W*  W                            WWWWWWWWWW
+W W K   W                            W   W                                  KW W
+W WWWW                               W  *W                            W WWWWWW W
+W      @                             W * W                            W        W
+WWWWWWWWW                            W   W                            WWWWWWWWWW
 W                                    W  *W                                     W
-W             WWWWWWWWWWWWWWWWWWWWWWWW   WWWWWWWWWWWWWWWWWWWWWWWWW             W
-W             W                                                  W             W
-W             W                                                  W             W
-W             W  WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  W             W
-W             W  W                                            W  W        K    W
+W             WWWWWWWWWWWWWWWWWWWWWWWW   WWWWWWWW   WWWWWWWWWWWWWW             W
+W                                                                W             W
+W                                                                W             W
+W             W  WWWWWWWWWWWWWWWWWWWWW   WWWWWWWWWWWWWWWWWWWWWW  W             W
+W             W  W                                            W  W             W
 W             W  W                                            W  W             W
 W             W  W  WWWWWWWWWWWWWWWWWW    WWWWWWWWWWWWWWWWWW  W  W             W
-W             W  W  W              W   * W              W  W  W  W             W
-W  2          W  W  W              W \      W              W  W  W             W
+W             W  W  W              W   * W              W  W  W                W
+W             W  W  W              W \      W              W  W                W
 WWWWWWWWWWWWWWW  W  W              W * * W              W  W  W  WWWWWWWWWWWWWWW
 W                W  W              W        W              W  W                W
 W                W  W              W        W              W  W                W
-W         &                                                             $      W
+W         $                                                             &      W
 W                                                                              W
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 Q
 DOOR 1 2 1
 0 1     
-0        
-
-DOOR 2 1 0
-2       
+0    
 D

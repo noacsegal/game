@@ -70,7 +70,7 @@ void Game::startGame() {
             // Track which player has finished the current level
             bool playerFinished[GameScreens::NUM_OF_PLAYERS] = { false, false };
 
-            gs.printPlayorInventory(point(0, Screen::MAX_Y), players[0], players[1]);
+            gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
             currScreenPtr->draw();
 
             //draw players
@@ -101,15 +101,19 @@ void Game::startGame() {
                         if (temp == door.getPlace()) {
                             hitDoor = true;
 
-                            //*************************************************************************************************
+                            //checks if the player is holding a key that the door needs
+                            if (s.getItemType() == ItemType::KEY) {
+                                if (door.keyForDoor(s.changeKey())) {
+                                    //take the key from the player
+                                    s.updateKey(nullptr);
+                                    s.updateItemType(ItemType::EMPTY);
+                                    gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
+
+                                }
+                            }
+                            
                             // The door itself now checks its own keys and switches via pointers
-                            if (door.canOpen(s.changeKey())) {
-
-                                //take the key from the player
-                                s.updateKey(nullptr);
-                                s.updateItemType(ItemType::EMPTY);
-                                gs.printPlayorInventory(point(0, Screen::MAX_Y), players[0], players[1]);
-
+                            if (door.canOpen()) {
                                 door.addPlayer(); // Add player to door count
 
                                 // Visuals: Remove player
@@ -123,7 +127,7 @@ void Game::startGame() {
 
                         // Check wall collisions / puzzles
                         if (s.move(*currScreenPtr)) {
-                            gs.printPlayorInventory(point(0, Screen::MAX_Y), players[0], players[1]);
+                            gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
 
                             // --- Check Collision with KEYS ---
                             for (auto& k : *currentKeys) {
@@ -134,7 +138,7 @@ void Game::startGame() {
                                         k.changeTaken(true);
                                         s.updateItemType(ItemType::KEY);
                                     }
-                                    gs.printPlayorInventory(point(0, Screen::MAX_Y), players[0], players[1]);
+                                    gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
                                 }
                             }
 
@@ -149,7 +153,7 @@ void Game::startGame() {
                             for (auto& b : *currentBombs) {
 
                                 if (s.getBody() == b.getPlaceP()) {
-                                    if (s.getItemType() == ItemType::EMPTY) {
+                                    if (s.getItemType() == ItemType::EMPTY && !b.isTicking()) {
                                         s.updateBomb(&b);
                                         s.updateItemType(ItemType::BOMB);
                                         b.setTaken(true);
@@ -209,7 +213,7 @@ void Game::startGame() {
                     indexScreen++;
 
                     // Check if End of Game
-                    if (indexScreen == GameScreens::NUM_OF_SCREENS - 1) {
+                    if (indexScreen == gs.numOfScreens() ) {
                         currScreenPtr = &gs.endScreenByRef(); // End screen
                         cls();
                         currScreenPtr->draw();
@@ -239,7 +243,7 @@ void Game::startGame() {
 
                     players[0].draw();
                     players[1].draw();
-                    gs.printPlayorInventory(point(0, Screen::MAX_Y), players[0], players[1]);
+                    gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
                 }
 
                 // --- Input Handling (Pause/Exit) ---
@@ -257,7 +261,7 @@ void Game::startGame() {
                         else if (tolower(keyBoard) == ESC) {
                             gotoxy(0, Screen::MAX_Y);
                             std::cout << "                                                                                ";
-                            gs.printPlayorInventory(point(0, Screen::MAX_Y), players[0], players[1]);
+                            gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
                         }
                     }
 
@@ -270,7 +274,7 @@ void Game::startGame() {
 
                         //if player let go of an element
                         for (auto& p : players) {
-                            //if we pressed the char to get rid od something and we're holding something
+                            //if we pressed the char to get rid of something and we're holding something
                             if (keyBoard == p.getDisposeChar() && p.getItemType() != ItemType::EMPTY) {
 
                                 if (p.getItemType() == ItemType::KEY) {

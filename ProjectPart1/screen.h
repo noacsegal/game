@@ -26,6 +26,7 @@ private:
 	std::vector <Bomb> screenBombs;
 	point startPosPlayer1 = { 0,0, Direction::directions[Direction::STAY], ' '};
 	point startPosPlayer2 = { 0,0, Direction::directions[Direction::STAY], ' '};
+	point legendPos = { 0,0, Direction::directions[Direction::STAY], ' ' };//*********************************************************
 
 	//return the char from a specific point of the  current screen
 	char charAtCurrent(const point& p) const {//changed********************************************************************************
@@ -34,6 +35,7 @@ private:
 	char charAtOriginal(const point& p) const {//changed********************************************************************************
 		return originalScreen[p.getY()][p.getX()];
 	}
+
 public:
 	void createScreenLine(const char* content, int i);
 
@@ -124,6 +126,14 @@ public:
 
 	size_t getDoorVectorSize() {
 		return screenDoors.size();
+	}
+	//*****************************************************************************
+	void updateLegendPos(point p) {
+		legendPos = p;
+	}
+
+	point& legendPosByRef() {
+		return legendPos;
 	}
 };
 
