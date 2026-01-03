@@ -30,7 +30,7 @@ void Screen::createKeyArray()
 	for (int row = 0; row < MAX_Y; row++) {
 		for (int col = 0; col < MAX_X; col++) {
 			point p = point(col, row, Direction::directions[Direction::STAY], originalScreen[row][col]);
-			if (isChar(p, key::KEY)) {
+			if (isCharOriginal(p, key::KEY)) {
 				key k = { p };
 				screenKeys.push_back(k);
 			}
@@ -68,7 +68,7 @@ void Screen::createBombArray()
 	for (int row = 0; row < MAX_Y; row++) {
 		for (int col = 0; col < MAX_X; col++) {
 			point p = point(col, row, Direction::directions[Direction::STAY], originalScreen[row][col]);
-			if (isChar(p, Bomb::BOMB)) {
+			if (isCharOriginal(p, Bomb::BOMB)) {
 				Bomb b = { p };
 				screenBombs.push_back(b); 
 			}

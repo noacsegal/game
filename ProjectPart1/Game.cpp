@@ -41,7 +41,6 @@ void Game::startGame() {
 
 
 
-            int indexScreen = 0;
             Screen* currScreenPtr = &gs.startScreenByRef();
             currScreenPtr->draw();
             bool running = true; //is false at the end of the game
@@ -49,8 +48,9 @@ void Game::startGame() {
 
             //waits to start the game
             startingScreen();
-            indexScreen++;
+            int indexScreen = 0;
 
+            //load screen
             currScreenPtr = &gs.ScreeniByRef(indexScreen);
 
             std::vector<Door>* currentDoors = &currScreenPtr->screenDoorByRef();

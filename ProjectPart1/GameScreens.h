@@ -17,16 +17,9 @@ public:
 
 private:
 	//data members
-	//IMPORTANT: the gameScreens first and last index are not playing screens
 	std::vector <Screen> gameScreens;
 	Screen startScreen;
 	Screen endScreen;
-	//*************************************************************************************************************************
-	// PRETTY SURE WE NEVER ACTUALLY USE THIS
-	//std::vector <std::vector<key>> screenKeys; // vector of key arrays for each screen
-	//std::vector <std::vector<Door>> screenDoors;
-	//std::vector <std::vector<Switch>> screenSwitches;
-	//std::vector <std::vector<Bomb>> screenBombs;
 
 public:
 	GameScreens() {}

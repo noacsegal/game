@@ -48,6 +48,7 @@ bool files::createScreen(std::ifstream& screenFile, Screen& screenToFill){
 			}
 			point terminatorPos = { Screen::MAX_X - 1, curr_row};
 			screenToFill.setCharOriginal(terminatorPos, '\0');
+			screenToFill.setCharCurrent(terminatorPos, '\0');
 
 			++curr_row;
 			curr_col = 0;
@@ -65,6 +66,7 @@ bool files::createScreen(std::ifstream& screenFile, Screen& screenToFill){
 				screenToFill.updatePlayer2Pos(p);
 			}
 			screenToFill.setCharOriginal(p, c);
+			screenToFill.setCharCurrent(p, c);
 			curr_col++;
 		}
 		screenFile.get(c);
@@ -139,7 +141,7 @@ bool files::createMetaData(std::ifstream& screenFile, Screen& screenToFill)
 
 void files::errorFunction(std::string cause)
 {
-	//cls();
+	cls();
 	std::cout << "Game was stopped because: " << cause << std::endl;
 	std::cout << "Press escape to exit the program" << std::endl;
 

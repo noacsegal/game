@@ -28,10 +28,12 @@ private:
 	point startPosPlayer2 = { 0,0, Direction::directions[Direction::STAY], ' '};
 
 	//return the char from a specific point of the  current screen
-	char charAt(const point& p) const {
+	char charAtCurrent(const point& p) const {//changed********************************************************************************
 		return currentScreen[p.getY()][p.getX()];
 	}
-
+	char charAtOriginal(const point& p) const {//changed********************************************************************************
+		return originalScreen[p.getY()][p.getX()];
+	}
 public:
 	void createScreenLine(const char* content, int i);
 
@@ -55,13 +57,16 @@ public:
 		return currentScreen[p.getY()][p.getX()];
 	}
 
-	char getChar(int y, int x) {
+	char getChar(int y, int x) const{
 		return currentScreen[y][x];
 	}
 
 	//checks if point is the ch we are looking for
-	bool isChar(const point& p, char ch) const {
-		return charAt(p) == ch;
+	bool isCharOriginal(const point& p, char ch) const {//changed****************************************************************************
+		return charAtOriginal(p) == ch;
+	}
+	bool isCharCurrent(const point& p, char ch) const {//changed****************************************************************************
+		return charAtCurrent(p) == ch;
 	}
 
 	//checks if a specific spot has a char
@@ -79,7 +84,7 @@ public:
 	void createBombArray();
 
 	
-	//puts a char onto the screen array
+	//puts a char onto the original screen 
 	void setCharOriginal(const point& p, char ch) {//changed ***************************************************************************************************************
 		if (p.getX() >= 0 && p.getX() < MAX_X && p.getY() >= 0 && p.getY() < MAX_Y) {
 			originalScreen[p.getY()][p.getX()] = ch;
@@ -88,7 +93,7 @@ public:
 	//changes the current screen
 	void setCharCurrent(const point& p, char ch) {//changed ***************************************************************************************************************
 		if (p.getX() >= 0 && p.getX() < MAX_X && p.getY() >= 0 && p.getY() < MAX_Y) {
-			originalScreen[p.getY()][p.getX()] = ch;
+			currentScreen[p.getY()][p.getX()] = ch;
 		}
 	}
 
