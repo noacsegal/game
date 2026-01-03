@@ -39,7 +39,8 @@ void Bomb::goOff(player& p1, player& p2, Screen& currScreen)
 			gotoxy(x, y);
 			std::cout << ' ' << std::flush; // change the screen we see
 			point todelete(x, y, Direction::directions[Direction::STAY], ' ');
-			currScreen.setChar(todelete, ' ');//change the actual screen
+			//changed ***************************************************************************************************************
+			currScreen.setCharCurrent(todelete, ' ');//change the actual screen
 			y++;
 		}
 		x++;

@@ -1,6 +1,7 @@
 #pragma once
 #include "utillities.h"
 #include <fstream>
+#include "screen.h"
 
 class files
 {

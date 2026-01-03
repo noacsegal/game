@@ -1,3 +1,5 @@
+//files.cpp
+
 #include "files.h"
 #include "Screen.h"
 #include "Game.h"
@@ -12,6 +14,7 @@ bool files::getAllScreenFileNames()
 	for (const auto& entry : fs::directory_iterator(fs::current_path())) {
 		auto filename = entry.path().filename();
 		auto filenameStr = filename.string();
+
 		if (filenameStr.substr(0, 9) == "adv-world" && filename.extension() == ".screen") {
 			fileNames.push_back(filenameStr);
 		}
@@ -28,26 +31,31 @@ bool files::getAllScreenFileNames()
 }
 
 //function from lab with improvments - return false if something was wrong with the file
-// Q- shows when the screen is done in the file
 bool files::createScreen(std::ifstream& screenFile, Screen& screenToFill){
 	int curr_row = 0;
 	int curr_col = 0;
 	char c;
 	
-	//we are not at the end of the file or past the last row
-	while (!screenFile.get(c) == END_SCREEN && curr_row < Screen::MAX_Y) {
+	//we are not at the end of the screen or past the last row
+	screenFile.get(c);
+	while (c != END_SCREEN && curr_row < Screen::MAX_Y) {
 		if (c == '\n') {
 
 			//screen is too small
-			if (curr_col < Screen::MAX_X) {
-				errorFunction("Screen is too small");
+			if (curr_col < Screen::MAX_X - 1) {
+				errorFunction("Screen is too small- not enough collums");
 				return false;
 			}
+			point terminatorPos = { Screen::MAX_X - 1, curr_row};
+			screenToFill.setCharOriginal(terminatorPos, '\0');
+
 			++curr_row;
 			curr_col = 0;
+			screenFile.get(c);
 			continue;
 		}
-		point p = { curr_col, curr_row, Direction::directions[Direction::STAY], ' ' };
+		point p = { curr_col, curr_row};
+
 		if (curr_col < Screen::MAX_X) {
 			// check where the players are supposed to be
 			if (c == '$') {
@@ -56,13 +64,14 @@ bool files::createScreen(std::ifstream& screenFile, Screen& screenToFill){
 			else if (c == '&') {
 				screenToFill.updatePlayer2Pos(p);
 			}
-			screenToFill.setChar(p, c);
+			screenToFill.setCharOriginal(p, c);
+			curr_col++;
 		}
+		screenFile.get(c);
 	}
 
-	screenFile.close();
 	if (curr_row < Screen::MAX_Y) {
-		errorFunction("Screen is too small");
+		errorFunction("Screen is too small- not enough rows");
 		return false;
 	}
 	return true;
@@ -74,7 +83,8 @@ bool files::createMetaData(std::ifstream& screenFile, Screen& screenToFill)
 
 	while (screenFile >> word && word != "DONE") {
 		if (word == "DOOR") {
-			int id, kCount, sCount;
+			char id;
+			int kCount, sCount;
 
 			//makes sure we can read all the data
 			if (!(screenFile >> id >> kCount >> sCount)) {
@@ -129,14 +139,9 @@ bool files::createMetaData(std::ifstream& screenFile, Screen& screenToFill)
 
 void files::errorFunction(std::string cause)
 {
-	cls();
-	std::cout << "Game wa stopped because: " << cause << std::endl;
+	//cls();
+	std::cout << "Game was stopped because: " << cause << std::endl;
 	std::cout << "Press escape to exit the program" << std::endl;
 
-	//wait for escape char
-	while (true) {
-		if (_kbhit()) {
-			if (_getch() == Game::KeyBoardKeys::ESC) return;
-		}
-	}
+	
 }

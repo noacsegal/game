@@ -26,12 +26,11 @@ void player::draw(char ch) {
 bool player::move(Screen& currScreen) {
 	point target_pos = body;
 	target_pos.move();
-
 	int dest_x = target_pos.getX();
 	int dest_y = target_pos.getY();
 
 	// Get the char at the target position
-	char charAtTarget = currScreen.getChar(dest_y, dest_x);
+	char charAtTarget = currScreen.getChar(target_pos);
 
 	// if player ran into an obstacle
 	if (charAtTarget == OBSTACLE) {
@@ -45,12 +44,12 @@ bool player::move(Screen& currScreen) {
 
 			point obstacle_curr_loc = target_pos;
 			obstacle_curr_loc.draw(' ');
-			currScreen.setChar(obstacle_curr_loc, ' ');
+			currScreen.setCharCurrent(obstacle_curr_loc, ' ');
 
 			// Draw obstacle at new spot
 			point obstacle_new_loc(push_x, push_y, Direction::directions[Direction::STAY], OBSTACLE);
 			obstacle_new_loc.draw();
-			currScreen.setChar(obstacle_new_loc, OBSTACLE);
+			currScreen.setCharCurrent(obstacle_new_loc, OBSTACLE);
 
 			body.draw(' ');
 			body.move();
@@ -72,8 +71,8 @@ bool player::move(Screen& currScreen) {
 
 		//save the level as it is
 		char current_screen[Screen::MAX_Y][Screen::MAX_X];
-		key key1 = currScreen.changeScreenKeys()[0];
-		key key2 = currScreen.changeScreenKeys()[1];
+		key key1 = currScreen.screenKeysByRef()[0];
+		key key2 = currScreen.screenKeysByRef()[1];
 	
 
 		for (int y = 0; y < Screen::MAX_Y; y++) {
@@ -139,8 +138,8 @@ bool player::move(Screen& currScreen) {
 		else {
 			// the answer was right
 			point riddle_pos(dest_x, dest_y, Direction::directions[Direction::STAY], ' ');
-			currScreen.setChar(riddle_pos, ' ');
-			currScreen.setChar(body, ' ');
+			currScreen.setCharCurrent(riddle_pos, ' ');//changed ***************************************************************************************************************
+			currScreen.setCharCurrent(body, ' '); //changed ***************************************************************************************************************
 			current_screen[dest_y][dest_x] = ' ';
 			cls();
 			int y = 0;

@@ -6,7 +6,7 @@
 //load all data from files
 bool GameScreens::LoadGameScreens() {
     files allFiles;
-    if (allFiles.getAllScreenFileNames()) {
+    if (!allFiles.getAllScreenFileNames()) {
         return false;
     }
 
@@ -43,7 +43,8 @@ bool GameScreens::LoadGameScreens() {
         if (!allFiles.createMetaData(screenFile, screen)) {
             return false;
         }
-        return true;
+
+        screenFile.close();
     }
 
     //IMPORTANT: RN THE PLAYERS DON'T HAVE THE RIGHT CHARS
@@ -130,7 +131,7 @@ void GameScreens::createStartAndEndScreen()
     };
 
 
-    for (int row = 0; row < Screen::MAX_X; row++) {
+    for (int row = 0; row < Screen::MAX_Y; row++) {
         startScreen.createScreenLine(screenStart[row], row);
         endScreen.createScreenLine(screenEnd[row], row);
     }

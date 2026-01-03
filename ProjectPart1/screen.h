@@ -12,7 +12,7 @@ class Screen {
 public:
 	//size of screen
 	static constexpr int MAX_X = 81; //length of row, number of collums
-	static constexpr int MAX_Y = 24; //length of collum, number of rows
+	static constexpr int MAX_Y = 25; //length of collum, number of rows
 	static constexpr char WALL = 'W';
 
 
@@ -55,6 +55,10 @@ public:
 		return currentScreen[p.getY()][p.getX()];
 	}
 
+	char getChar(int y, int x) {
+		return currentScreen[y][x];
+	}
+
 	//checks if point is the ch we are looking for
 	bool isChar(const point& p, char ch) const {
 		return charAt(p) == ch;
@@ -76,7 +80,13 @@ public:
 
 	
 	//puts a char onto the screen array
-	void setChar(const point& p, char ch) {
+	void setCharOriginal(const point& p, char ch) {//changed ***************************************************************************************************************
+		if (p.getX() >= 0 && p.getX() < MAX_X && p.getY() >= 0 && p.getY() < MAX_Y) {
+			originalScreen[p.getY()][p.getX()] = ch;
+		}
+	}
+	//changes the current screen
+	void setCharCurrent(const point& p, char ch) {//changed ***************************************************************************************************************
 		if (p.getX() >= 0 && p.getX() < MAX_X && p.getY() >= 0 && p.getY() < MAX_Y) {
 			originalScreen[p.getY()][p.getX()] = ch;
 		}
@@ -94,9 +104,6 @@ public:
 	void updatePlayer1Pos(point p) {
 		startPosPlayer1 = p;
 	}
-	void updatePlayer1Pos(point p) {
-		startPosPlayer1 = p;
-	}
 
 	void updatePlayer2Pos(point p) {
 		startPosPlayer2 = p;
@@ -110,8 +117,10 @@ public:
 
 	Switch* specificSwitchRef(int i);
 
-	int getDoorVectorSize() {
+	size_t getDoorVectorSize() {
 		return screenDoors.size();
 	}
 };
+
+
 

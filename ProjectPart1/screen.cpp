@@ -83,7 +83,7 @@ void Screen::createDoorArray(){
 			point p = point(col, row, Direction::directions[Direction::STAY], c);
 			
 			//check if c is a number
-			if (c + '0' >= '1' && c + '0' <= '9') {
+			if (c >= '1' && c <= '9') {
 				Door d = { p };
 				screenDoors.push_back(d);
 			}
@@ -103,7 +103,6 @@ Door* Screen::getDoorID(char id)
 
 key* Screen::specificKeyRef(int i)
 {
-
 	if (i >= 0 && i < screenKeys.size())
 		return &screenKeys[i];
 	else
