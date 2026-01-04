@@ -40,7 +40,11 @@ bool GameScreens::LoadGameScreens() {
         //finds: keys, switches, doors and bombs
         fillAddedData(screen);
         createStartAndEndScreen();
-        
+
+        if (!allFiles.createRiddles(gameRiddles)) {
+            return false;
+        }
+
         //connects doors to keys/switches
         if (!allFiles.createMetaData(screenFile, screen)) {
             return false;
@@ -63,38 +67,32 @@ void GameScreens::fillAddedData(Screen& screen){
     
 }
 
-
-    
-    
-
+//function written by AI
 void GameScreens::printPlayorInventory(point topLeft, player& p1, player& p2)
 {
+    // Helper lambda to get string representation of the item
+    auto getItemName = [](ItemType t) -> std::string {
+        switch (t) {
+        case ItemType::KEY:  return "KEY ";
+        case ItemType::BOMB: return "BOMB";
+        default:             return "NONE";
+        }
+        };
+
+    // Print Player 1 (e.g., $ Life:3 Hold:KEY )
     gotoxy(topLeft.getX(), topLeft.getY());
-    
+    std::cout << p1.getBody().getChar() << " Life:" << p1.getNumLives()
+        << " Hold:" << getItemName(p1.getItemType());
 
-    if (p1.changeKey() != nullptr && p2.changeKey() != nullptr) {
-        std::cout << "player " << p1.getBody().getChar() << " has a key                     " << "player: " << p2.getBody().getChar() << " has a key                                 ";
-    }
+    // Print Player 2 (e.g., & Life:3 Hold:NONE)
+    gotoxy(topLeft.getX(), topLeft.getY() + 1);
+    std::cout << p2.getBody().getChar() << " Life:" << p2.getNumLives()
+        << " Hold:" << getItemName(p2.getItemType());
 
-    else if (p1.changeKey() == nullptr && p2.changeKey() != nullptr) {
-        std::cout << "player " << p1.getBody().getChar() << " does not have a key                     " << "player: " << p2.getBody().getChar() << " has a key                                 ";
-        
-    }
-
-    else if (p1.changeKey() != nullptr && p2.changeKey() == nullptr) {
-        std::cout << "player " << p1.getBody().getChar() << " has a key                     " << "player: " << p2.getBody().getChar() << " does not have a key                                 ";
-
-    }
-
-    else {
-        std::cout << "player " << p1.getBody().getChar() << " does not have a key                     " << "player: " << p2.getBody().getChar() << " does not have a key                                 ";
-
-    }
-
-
+    // Clear the third line for cleanliness
+    gotoxy(topLeft.getX(), topLeft.getY() + 2);
+    std::cout << "                    ";
 }
-
-
 
 void GameScreens::createStartAndEndScreen()
 {

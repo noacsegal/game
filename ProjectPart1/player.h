@@ -5,12 +5,13 @@
 #include "Key.h"
 #include "Bomb.h"
 
+class riddle;
+
 class player
 {
 public:
 	static constexpr size_t NUM_KEYS = 5;
 	static constexpr char OBSTACLE = '*';
-	static constexpr char RIDDLE = '?';
 
 
 private:
@@ -33,8 +34,10 @@ public:
 	}
 
 	//player functions
-	bool move(Screen& currScreen);//once the direction is decided the player moves in this direction until anthor one is chosen
+	//once the direction is decided the player moves in this direction until anthor one is chosen
+	bool move(Screen& currScreen, riddle& rid); //*********************************************
 	void draw();
+
 	void draw(char ch);
 	void keyPressed(char ch);//moves player in diffrent directions
 
@@ -87,6 +90,15 @@ public:
 
 	void moveScreen(point p) {
 		body.changePosition(p);
+	}
+
+	//added *****************************************************************************************
+	int getNumLives() const{
+		return lives;
+	}
+
+	int RiddleTrysByRef()const {
+		return riddle_trys_left;
 	}
 };
 

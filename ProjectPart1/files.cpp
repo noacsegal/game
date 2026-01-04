@@ -59,7 +59,7 @@ bool files::createScreen(std::ifstream& screenFile, Screen& screenToFill){
 
 		if (c == 'L') {
 			screenToFill.updateLegendPos(p);
-			continue;
+			curr_col++;
 		}
 
 		if (curr_col < Screen::MAX_X) {
@@ -155,4 +155,74 @@ void files::errorFunction(std::string cause)
 	std::cout << "Press escape to exit the program" << std::endl;
 
 	
+}
+
+bool files::createRiddles(riddle& ridToFill)
+{
+	namespace fs = std::filesystem;
+	std::string riddleFileName = "";
+
+	// 1. Loop through ALL files in the current folder
+	for (const auto& entry : fs::directory_iterator(fs::current_path())) {
+		auto filename = entry.path().filename();
+		auto filenameStr = filename.string();
+
+		if (filenameStr.length() >= 6 &&
+			filenameStr.substr(0, 6) == "riddle" &&
+			filename.extension() == ".txt") {
+
+			riddleFileName = filenameStr;
+			break; 
+		}
+	}
+
+	// 3. If we found a file, open it and read
+	if (!riddleFileName.empty()) {
+		std::ifstream riddleFile(riddleFileName);
+
+		if (riddleFile.is_open()) {
+			std::string word;
+			
+			while (riddleFile >> word) {
+				
+				
+				if (word == "RIDDLE") {
+					int numRows;
+					riddleFile >> numRows; 
+
+					std::string dummy;
+					std::getline(riddleFile, dummy);
+
+					std::string entireRid = "";
+
+					for (int i = 0; i < numRows; i++) {
+						std::string line;
+
+						if (std::getline(riddleFile, line)) {
+
+							entireRid += line + "\n";
+						}
+					}
+
+					std::string answer;
+					std::getline(riddleFile, answer);
+
+					ridToFill.addRiddle(entireRid, answer);
+
+				}
+			}
+			riddleFile.close();
+		}
+
+		else {
+			errorFunction("riddle file couldn't be opened");
+			return false;
+		}
+	}
+
+	else {
+		errorFunction("No riddle file found!");
+		return false;
+	}
+	return true;
 }

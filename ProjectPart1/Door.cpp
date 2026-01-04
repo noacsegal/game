@@ -22,8 +22,6 @@ bool Door::keyForDoor(key* k) {
 	if (k == nullptr) {
 		return false;
 	}
-	gotoxy(0, 27);
-	std::cout << "in keyForDoor going to return ";
 
 	for (int i = 0; i < my_keys.size(); ++i) {
 
@@ -33,11 +31,9 @@ bool Door::keyForDoor(key* k) {
 		if (k == my_keys[i]) {
 			keyUsed[i] = true;
 			keyCounter++;
-			std::cout << "true" << std::endl;
 			return true;
 		}
 	}
-	std::cout << "false" << std::endl;
 
 	return false;
 }
@@ -50,9 +46,6 @@ bool Door::canOpen()
 	}
 	bool keysReady = (keyCounter == my_keys.size());
 	bool switchesReady = switchStatesCorrect();
-	gotoxy(0, 28);
-	std::cout << "Keys: " << keyCounter << "/" << my_keys.size()
-		<< " | Switch OK? " << (switchesReady ? "YES" : "NO ") << std::endl;
 	return false;
 }
 

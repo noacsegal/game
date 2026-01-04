@@ -5,7 +5,6 @@
 #include <cctype>
 #include "direction.h"
 #include <algorithm>
-#include "riddle.h"
 #include "GameScreens.h"
 #include <iostream>
 #include <windows.h>
@@ -23,7 +22,7 @@ void player::draw(char ch) {
 }
 
 
-bool player::move(Screen& currScreen) {
+bool player::move(Screen& currScreen, riddle& rid) {
 	point target_pos = body;
 	target_pos.move();
 	int dest_x = target_pos.getX();
@@ -61,94 +60,19 @@ bool player::move(Screen& currScreen) {
 		}
 	}
 
+	else if (charAtTarget == riddle::RIDDLE) {
+
+		//return false if the player was wrong 3 times
+		if (!rid.answerRiddle(*this, currScreen)) {
+			lives--;
+		}
+	}
+
 
 	else if (charAtTarget == Screen::WALL) {
 		body.changeDir(Direction::directions[Direction::STAY]);
 	}
 
-	//if player will ran into a riddle
-	else if (charAtTarget == RIDDLE) {
-
-		//save the level as it is
-		char current_screen[Screen::MAX_Y][Screen::MAX_X];
-		key key1 = currScreen.screenKeysByRef()[0];
-		key key2 = currScreen.screenKeysByRef()[1];
-	
-
-		for (int y = 0; y < Screen::MAX_Y; y++) {
-			for (int x = 0; x < Screen::MAX_X; x++) {
-				char charOnScreen = currScreen.getChar(y, x);
-				current_screen[y][x] = charOnScreen;
-
-				//check if we are on a key that has been picked up
-				if (currScreen.getChar(y, x) == key::KEY) {
-
-					//check which key we are on
-					if (key1.getPlaceP().getX() == x && key1.getPlaceP().getY() == y && !key1.isTaken())
-						current_screen[y][x] = key::KEY;
-					else if (key2.getPlaceP().getX() == x && key2.getPlaceP().getY() == y && !key2.isTaken())
-						current_screen[y][x] = key::KEY;
-					if (key1.getPlaceP().getX() == x && key1.getPlaceP().getY() == y && key1.isTaken())
-						current_screen[y][x] = ' ';
-					else if (key2.getPlaceP().getX() == x && key2.getPlaceP().getY() == y && key2.isTaken())
-						current_screen[y][x] = ' ';
-
-				}
-				else
-					current_screen[y][x] = currScreen.getChar(y, x);
-
-			}
-			current_screen[y][Screen::MAX_X - 1] = '\0';
-		}
-		bool success = false;
-
-		while (riddle_trys_left > 0 && !success) {
-			int x = body.getX();
-			int y = body.getY();
-			current_screen[y][x] = RIDDLE;
-
-			cls();
-			std::cout << "you have " << riddle_trys_left << " trys" << std::endl;
-			//ask the question and resive true if the answer is correct and false otherwise
-			bool result = riddle::ask_riddle();
-			cls();
-
-			if (result) {
-				//when the answer is correct print the level as it was
-				std::cout << "You are correct!" << std::endl;
-				Sleep(500);
-				cls();
-				success = true;
-			}
-			else {
-				std::cout << "You are wrong :(" << std::flush;
-				riddle_trys_left--;
-				std::cout << "You have " << riddle_trys_left << " trys left" << std::endl;
-				Sleep(1000);
-			}
-		}
-
-		if (riddle_trys_left == 0) {
-			//if we got 0 trys exit the level to the home screen
-			std::cout << "you have failed, the game is reset";
-			Sleep(1000);
-			cls();
-			return false;
-		}
-		else {
-			// the answer was right
-			point riddle_pos(dest_x, dest_y, Direction::directions[Direction::STAY], ' ');
-			currScreen.setCharCurrent(riddle_pos, ' ');//changed ***************************************************************************************************************
-			currScreen.setCharCurrent(body, ' '); //changed ***************************************************************************************************************
-			current_screen[dest_y][dest_x] = ' ';
-			cls();
-			int y = 0;
-			for (const auto& row : current_screen) {
-				gotoxy(0, y++);
-				std::cout << row << std::endl;
-			}
-		}
-	}
 	
 	else {
 		Direction currentDir = body.getDir();

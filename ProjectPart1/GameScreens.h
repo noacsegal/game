@@ -5,6 +5,7 @@
 #include "Door.h"
 #include "utillities.h"
 #include "Bomb.h"
+#include "riddle.h"
 
 
 
@@ -18,6 +19,7 @@ private:
 	std::vector <Screen> gameScreens;
 	Screen startScreen;
 	Screen endScreen;
+	riddle gameRiddles; //**************************************************************************
 
 public:
 	GameScreens() {}
@@ -43,6 +45,10 @@ public:
 	//added ***************************************************************************************************************
 	size_t numOfScreens() {
 		return gameScreens.size();
+	}
+
+	riddle& riddleByRef() {
+		return gameRiddles;
 	}
 };
 

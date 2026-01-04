@@ -122,11 +122,11 @@ void Game::startGame() {
                             }
                         }
                     }
-
+                    
                     if (!hitDoor) {
 
                         // Check wall collisions / puzzles
-                        if (s.move(*currScreenPtr)) {
+                        if (s.move(*currScreenPtr, gs.riddleByRef())) {
                             gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
 
                             // --- Check Collision with KEYS ---
@@ -161,9 +161,11 @@ void Game::startGame() {
                                 }
                             }
 
+
+
                             // --- Redraw Logic ---
 
-                        // 1. Draw Keys (if not taken)
+                            // 1. Draw Keys (if not taken)
                             for (auto& k : *currentKeys) {
                                 k.draw();
                             }

@@ -2,6 +2,7 @@
 #include "utillities.h"
 #include <fstream>
 #include "screen.h"
+#include "riddle.h"
 
 class files
 {
@@ -23,6 +24,8 @@ public:
 	bool createMetaData(std::ifstream& screenFile, Screen& screenToFill);
 
 	void errorFunction(std::string cause);
+
+	bool createRiddles(riddle& ridToFill);
 
 };
 

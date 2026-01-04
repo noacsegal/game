@@ -26,8 +26,8 @@ private:
 	std::vector <Bomb> screenBombs;
 	point startPosPlayer1 = { 0,0, Direction::directions[Direction::STAY], ' '};
 	point startPosPlayer2 = { 0,0, Direction::directions[Direction::STAY], ' '};
-	point legendPos = { 0,0, Direction::directions[Direction::STAY], ' ' };//*********************************************************
-
+	point legendPos = { 0,0, Direction::directions[Direction::STAY], ' ' };
+	
 	//return the char from a specific point of the  current screen
 	char charAtCurrent(const point& p) const {//changed********************************************************************************
 		return currentScreen[p.getY()][p.getX()];

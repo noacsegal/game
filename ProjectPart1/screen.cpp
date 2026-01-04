@@ -13,7 +13,7 @@ void Screen::createScreenLine(const char* content, int i)
 	
 }
 
-
+//chenged*********************************************************************
 //draws the entire screen
 void Screen::draw() const {
 	int y = 0;
@@ -22,6 +22,25 @@ void Screen::draw() const {
 		std::cout << row << std::flush;
 	}
 
+	// 1. Draw Keys (if not taken)
+	for (auto k : screenKeys) {
+		k.draw();
+	}
+
+	// 2. Draw Switches (To show state changes / or \)
+	for (auto sw : screenSwitches) {
+		sw.draw();
+	}
+
+	// 3. Draw Doors
+	for (const auto& d : screenDoors) {
+		d.getPlace().draw();
+	}
+
+	for (auto b : screenBombs) {
+		if (!b.getTaken())
+			b.getPlaceP().draw();
+	}
 }
 
 //go over the entire screen and save where the keys are
