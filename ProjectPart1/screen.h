@@ -77,7 +77,7 @@ public:
 		return xy == ' ';
 	}
 
-	void draw() const;
+	void drawOriginal() const;
 
 	void createKeyArray();
 
@@ -135,6 +135,9 @@ public:
 	point& legendPosByRef() {
 		return legendPos;
 	}
+
+	void drawCurrent() const;
+
 };
 
 

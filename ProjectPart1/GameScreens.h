@@ -50,5 +50,7 @@ public:
 	riddle& riddleByRef() {
 		return gameRiddles;
 	}
+
+	void clearPlayerInventory(point topleft);
 };
 

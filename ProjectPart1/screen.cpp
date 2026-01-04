@@ -15,7 +15,16 @@ void Screen::createScreenLine(const char* content, int i)
 
 //chenged*********************************************************************
 //draws the entire screen
-void Screen::draw() const {
+void Screen::drawOriginal() const {
+	int y = 0;
+	for (const auto& row : originalScreen) {
+		gotoxy(0, y++);
+		std::cout << row << std::flush;
+	}
+
+}
+
+void Screen::drawCurrent() const {
 	int y = 0;
 	for (const auto& row : currentScreen) {
 		gotoxy(0, y++);

@@ -20,6 +20,8 @@ public:
 	void addRiddle(std::string rid, std::string ans);
 
 	bool answerRiddle(player& p1, Screen& currscreen);
+
+	
 };
 
 

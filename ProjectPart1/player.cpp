@@ -22,7 +22,7 @@ void player::draw(char ch) {
 }
 
 
-bool player::move(Screen& currScreen, riddle& rid) {
+void player::move(Screen& currScreen, riddle& rid) {
 	point target_pos = body;
 	target_pos.move();
 	int dest_x = target_pos.getX();
@@ -66,6 +66,10 @@ bool player::move(Screen& currScreen, riddle& rid) {
 		if (!rid.answerRiddle(*this, currScreen)) {
 			lives--;
 		}
+		body.move();
+		currScreen.setCharCurrent(body, ' ');
+		body.changeDir(Direction::directions[Direction::STAY]);
+
 	}
 
 
@@ -85,7 +89,6 @@ bool player::move(Screen& currScreen, riddle& rid) {
 	}
 
 
-	return true;
 }
 
 void player::keyPressed(char ch) {

@@ -162,5 +162,25 @@ void GameScreens::createStartAndEndScreen()
     }
 }
 
+//function written by AI
+void GameScreens::clearPlayerInventory(point topLeft)
+{
+    // A string of spaces long enough to cover the longest possible output
+    // (1 char + " Life:" + 2 digits + " Hold:" + "NONE" is about 20 chars)
+    std::string eraser = "                          ";
+
+    // Clear Line 1 (Player 1's previous stats)
+    gotoxy(topLeft.getX(), topLeft.getY());
+    std::cout << eraser;
+
+    // Clear Line 2 (Player 2's previous stats)
+    gotoxy(topLeft.getX(), topLeft.getY() + 1);
+    std::cout << eraser;
+
+    // Clear Line 3 (The extra clean-up line)
+    gotoxy(topLeft.getX(), topLeft.getY() + 2);
+    std::cout << eraser;
+}
+
 
   

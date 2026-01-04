@@ -4,7 +4,7 @@
 #include "Screen.h"
 #include "Game.h"
 #include <conio.h>
-
+#include <Windows.h>
 
 
 //function from lab with changes- return false if no files were found
@@ -59,19 +59,26 @@ bool files::createScreen(std::ifstream& screenFile, Screen& screenToFill){
 
 		if (c == 'L') {
 			screenToFill.updateLegendPos(p);
-			curr_col++;
 		}
 
 		if (curr_col < Screen::MAX_X) {
 			// check where the players are supposed to be
+
 			if (c == '$') {
 				screenToFill.updatePlayer1Pos(p);
+				screenToFill.setCharOriginal(p, c);
+
 			}
 			else if (c == '&') {
 				screenToFill.updatePlayer2Pos(p);
+				screenToFill.setCharOriginal(p, c);
+
 			}
-			screenToFill.setCharOriginal(p, c);
-			screenToFill.setCharCurrent(p, c);
+			else {
+				screenToFill.setCharCurrent(p, c);
+				screenToFill.setCharOriginal(p, c);
+
+			}
 			curr_col++;
 		}
 		screenFile.get(c);
@@ -184,12 +191,9 @@ bool files::createRiddles(riddle& ridToFill)
 			std::string word;
 			
 			while (riddleFile >> word) {
-				
-				
 				if (word == "RIDDLE") {
 					int numRows;
 					riddleFile >> numRows; 
-
 					std::string dummy;
 					std::getline(riddleFile, dummy);
 

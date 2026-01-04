@@ -35,7 +35,7 @@ public:
 
 	//player functions
 	//once the direction is decided the player moves in this direction until anthor one is chosen
-	bool move(Screen& currScreen, riddle& rid); //*********************************************
+	void move(Screen& currScreen, riddle& rid); //*********************************************
 	void draw();
 
 	void draw(char ch);

@@ -18,7 +18,7 @@ bool riddle::ask_riddle() {
 	std::string input;
 	std::cin >> input;
 	toLower(input);
-
+	std::cin.ignore(1000, '\n'); // Ignore the next 1000 chars or until a newline
 	return (input == answers[numRid]);
 
 }
@@ -56,21 +56,19 @@ bool riddle::answerRiddle(player& p, Screen& currscreen)
 			Sleep(1000);
 		}
 	}
-
+	bool result = true;
 	if (riddle_trys_left == 0) {
 		//if we got 0 trys exit the level to the home screen
-		std::cout << "you have failed, the game is reset";
+		std::cout << "you have failed and lost a life";
 		Sleep(1000);
-		cls();
-		return false;
+		result = false;
 	}
+	//redraw screen after riddle
 
-	else {
-		// the answer was right
-		currscreen.setCharCurrent(p.getBody(), ' ');
-		cls();
-		currscreen.draw();
-		numRid++;
-		return true;
-	}
+	currscreen.setCharCurrent(p.getBody(), ' ');
+	cls();
+	currscreen.drawCurrent();
+	numRid++;
+	
+	return result;
 }
