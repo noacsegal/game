@@ -85,16 +85,18 @@ void GameScreens::printPlayorInventory(point topLeft, player& p1, player& p2)
         }
         };
 
+    //************************************************************************************************************
     // Print Player 1 (e.g., $ Life:3 Hold:KEY )
     gotoxy(topLeft.getX(), topLeft.getY());
     std::cout << p1.getBody().getChar() << " Life:" << p1.getNumLives()
-        << " Hold:" << getItemName(p1.getItemType());
+        << " Hold:" << getItemName(p1.getItemType())<< "      ";
 
     // Print Player 2 (e.g., & Life:3 Hold:NONE)
     gotoxy(topLeft.getX(), topLeft.getY() + 1);
     std::cout << p2.getBody().getChar() << " Life:" << p2.getNumLives()
-        << " Hold:" << getItemName(p2.getItemType());
-
+        << " Hold:" << getItemName(p2.getItemType())<< "      ";
+    //************************************************************************************************************
+    
     // Clear the third line for cleanliness
     gotoxy(topLeft.getX(), topLeft.getY() + 2);
     std::cout << "                    ";

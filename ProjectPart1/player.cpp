@@ -32,22 +32,32 @@ bool player::move(Screen& currScreen, riddle& rid) {
 	char charAtTarget = currScreen.getChar(target_pos);
 	// if player ran into a torch
 	if (charAtTarget == TORCH) {
-		if (heldType != ItemType::EMPTY) {
-			char itemToDrop = ' ';
-			if (heldType == ItemType::BOMB) itemToDrop = Bomb::BOMB;
-			if (heldType == ItemType::KEY) itemToDrop = key::KEY;
-			point dropPos(body.getX(), body.getY(), Direction::directions[Direction::STAY], itemToDrop);
-			currScreen.setCharCurrent(dropPos, itemToDrop);
-			dropPos.draw();
+		//**************************************************************************************************
+
+		if (heldType == ItemType::EMPTY) {
+
+			heldType = ItemType::TORCH;
+			heldBomb = nullptr;
+			heldKey = nullptr;
+			currScreen.setCharCurrent(target_pos, ' ');
+			body.draw(' ');
+			body.move();
+			body.draw();
+			return true;
 		}
-		heldType = ItemType::TORCH;
-		heldBomb = nullptr;
-		heldKey = nullptr;
-		currScreen.setCharCurrent(target_pos, ' ');
-		body.draw(' ');
-		body.move();
-		body.draw();
-		return true;
+		else {
+			currScreen.setCharCurrent(body, ' ');
+			body.draw(' ');
+			point temp = body;
+			body.move();
+			body.draw(); 
+
+			currScreen.setCharCurrent(body, player::TORCH);
+			temp.draw('!');
+			return true;
+		}
+		//**************************************************************************************************
+
 	}
 
 	// if player ran into a spring
@@ -81,9 +91,15 @@ bool player::move(Screen& currScreen, riddle& rid) {
 				}
 			}
 			else {
-				body.draw(' ');
+				//******************************************************************************************
+				char charUnderPlayer = currScreen.getChar(body);
+
+				body.draw(charUnderPlayer);
+				
 				body.changePosition(next_step);
 				body.draw();
+				//******************************************************************************************
+
 			}
 		}
 		launchTimer--;
@@ -167,9 +183,14 @@ bool player::move(Screen& currScreen, riddle& rid) {
 		Direction currentDir = body.getDir();
 
 		if (currentDir.dirx != 0 || currentDir.diry != 0) {
-			body.draw(' ');
+			//***********************************************************************************
+			char charUnderPlayer = currScreen.getChar(body);
+			body.draw(charUnderPlayer);
+
 			body.move();
 			body.draw();
+			//***********************************************************************************
+
 		}
 	}
 	return true;
@@ -223,22 +244,6 @@ void player::keyPressed(char ch, Screen& currScreen) {
 		}
 		return;
 	}
-	if (std::tolower(ch) == std::tolower(dispose)) {
-		if (heldType != ItemType::EMPTY) {
-			char charToDrop = ' ';
-			if (heldType == ItemType::TORCH) charToDrop = TORCH;
-			if (heldType == ItemType::BOMB) charToDrop = Bomb::BOMB;
-			if (heldType == ItemType::KEY) charToDrop = key::KEY;
-
-			currScreen.setCharCurrent(body, charToDrop);
-			heldType = ItemType::EMPTY;
-			heldBomb = nullptr;
-			heldKey = nullptr;
-			body.draw();
-		}
-		return;
-	}
-
 	body.changeDir(newDir);
 }
 

@@ -176,7 +176,7 @@ void Game::startGame() {
                         }
 
                         bool inDarkZone = false;
-                        bool isScreen3 = (indexScreen == 3); //the dark will be in the third room
+                        bool isScreen3 = (indexScreen == 2); //the dark will be in the third room
 
                         int darkMinX = 0, darkMaxX = 21;
                         int darkMinY = 0, darkMaxY = 9;
@@ -298,6 +298,11 @@ void Game::startGame() {
                     currentDoors = &currScreenPtr->screenDoorByRef();
                     currentSwitches = &currScreenPtr->screenSwitchesByRef();
                     currentKeys = &currScreenPtr->screenKeysByRef();
+                    //**************************************************************************************************
+                    players[0].bodyToChange().changeDir(Direction::directions[Direction::STAY]);
+                    players[1].bodyToChange().changeDir(Direction::directions[Direction::STAY]);
+                    //**************************************************************************************************
+
                 }
 
 
@@ -365,6 +370,16 @@ void Game::startGame() {
                                 p.updateBomb(nullptr);
                                 p.updateItemType(ItemType::EMPTY);
                             }
+
+                            //**************************************************************************************************
+
+                            else if (p.getItemType() == ItemType::TORCH) {
+                                currScreenPtr->setCharCurrent(p.getBody(), '!');
+                                p.updateItemType(ItemType::EMPTY);
+                                p.getBody().draw('!');
+                            
+                            }
+                            //**************************************************************************************************
 
                         }
                     }
