@@ -28,7 +28,8 @@ private:
 	point startPosPlayer1 = { -1,-1, Direction::directions[Direction::STAY], ' '};
 	point startPosPlayer2 = { -1,-1, Direction::directions[Direction::STAY], ' '};
 	point legendPos = { -1,-1, Direction::directions[Direction::STAY], ' ' };
-	
+	bool isDark = false;
+
 	//return the char from a specific point of the  current screen
 	char charAtCurrent(const point& p) const {//changed********************************************************************************
 		return currentScreen[p.getY()][p.getX()];
@@ -100,8 +101,6 @@ public:
 		}
 	}
 
-	//ADD ON
-
 	point& player1posRef() {
 		return startPosPlayer1;
 	}
@@ -138,6 +137,9 @@ public:
 	}
 
 	void drawCurrent() const;
+	void setDarkness(bool status) { isDark = status; }
+	bool getIsDark() const { return isDark; }
+	void drawTile(int x, int y, bool lit);
 
 };
 

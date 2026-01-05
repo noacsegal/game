@@ -122,76 +122,138 @@ void Game::startGame() {
                 if (!hitDoor) {
                     s.getBody().draw();
 
-                    s.move(*currScreenPtr, gs.riddleByRef());
+                    if (s.move(*currScreenPtr, gs.riddleByRef())) {
 
-                    s.draw();
+                        s.draw();
 
-                    gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
+                        gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
 
 
-                    // --- Check Collision with KEYS ---
-                    for (auto& k : *currentKeys) {
-                        if (s.getBody() == k.getPlaceP() && !k.isTaken()) {
-                            if (s.getItemType() == ItemType::EMPTY) {
-                                //only if player isn't holding anything and key isn't taken the player takes the key
-                                s.updateKey(&k);
-                                k.changeTaken(true);
-                                s.updateItemType(ItemType::KEY);
-                                currScreenPtr->setCharCurrent(k.getPlaceP(), ' ');
-                            }
-                            gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
-                        }
-                    }
-
-                    // --- Check Collision with SWITCHES ---
-                    for (auto& sw : *currentSwitches) {
-                        if (s.getBody() == sw.getPlace()) {
-                            sw.toggle(); // This updates the boolean inside the switch
-                            currScreenPtr->setCharCurrent(sw.getPlace(), ' ');
-                        }
-                    }
-
-                    //check collision with bomb
-                    for (auto& b : *currentBombs) {
-
-                        if (s.getBody() == b.getPlaceP()) {
-                            if (s.getItemType() == ItemType::EMPTY && !b.isTicking()) {
-                                s.updateBomb(&b);
-                                s.updateItemType(ItemType::BOMB);
-                                b.setTaken(true);
-                                currScreenPtr->setCharCurrent(b.getPlaceP(), ' ');
+                        // --- Check Collision with KEYS ---
+                        for (auto& k : *currentKeys) {
+                            if (s.getBody() == k.getPlaceP() && !k.isTaken()) {
+                                if (s.getItemType() == ItemType::EMPTY) {
+                                    //only if player isn't holding anything and key isn't taken the player takes the key
+                                    s.updateKey(&k);
+                                    k.changeTaken(true);
+                                    s.updateItemType(ItemType::KEY);
+                                    currScreenPtr->setCharCurrent(k.getPlaceP(), ' ');
+                                }
+                                gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
                             }
                         }
+
+                        // --- Check Collision with SWITCHES ---
+                        for (auto& sw : *currentSwitches) {
+                            if (s.getBody() == sw.getPlace()) {
+                                sw.toggle(); // This updates the boolean inside the switch
+                                currScreenPtr->setCharCurrent(sw.getPlace(), ' ');
+                            }
+                        }
+
+                        //check collision with bomb
+                        for (auto& b : *currentBombs) {
+
+                            if (s.getBody() == b.getPlaceP()) {
+                                if (s.getItemType() == ItemType::EMPTY && !b.isTicking()) {
+                                    s.updateBomb(&b);
+                                    s.updateItemType(ItemType::BOMB);
+                                    b.setTaken(true);
+                                    currScreenPtr->setCharCurrent(b.getPlaceP(), ' ');
+                                }
+                            }
+                        }
+
+                        //check collision with torch
+                        bool playerHasTorch = false;
+                        point torchPos;
+
+                        for (auto& p : players) {
+                            if (p.getItemType() == ItemType::TORCH) {
+                                playerHasTorch = true;
+                                torchPos = players[i].getBody();
+                            }
+                        }
+
+                        bool inDarkZone = false;
+                        bool isScreen3 = (indexScreen == 3); //the dark will be in the third room
+
+                        int darkMinX = 0, darkMaxX = 21;
+                        int darkMinY = 0, darkMaxY = 9;
+
+                        //if the torch is in the dark place the torch will still be visible
+                        if (!playerHasTorch) {
+                            for (int y = darkMinY; y <= darkMaxY; y++) {
+                                for (int x = darkMinX; x <= darkMaxX; x++) {
+                                    if (currScreenPtr->getChar(y, x) == player::TORCH) {
+                                        torchPos = point(x, y, Direction::directions[Direction::STAY], player::TORCH);
+                                        torchPos.draw();
+                                    }
+                                }
+                            }
+                        }
+
+                        if (isScreen3) {
+                            int radiusSq = 25; //the radius is 5
+                            for (int y = darkMinY; y <= darkMaxY; y++) {
+                                for (int x = darkMinX; x <= darkMaxX; x++) {
+                                    bool pixelIsVisible = false;
+
+                                    if (playerHasTorch) {
+                                        int dx = x - torchPos.getX();
+                                        int dy = y - torchPos.getY();
+                                        if ((dx * dx) + (dy * dy) <= radiusSq) {
+                                            pixelIsVisible = true;
+                                        }
+                                    }
+
+                                    gotoxy(x, y);
+                                    if (pixelIsVisible) {
+                                        // Draw the character
+                                        std::cout << currScreenPtr->getChar(y, x);
+                                    }
+                                    else {
+                                        // Draw darkness
+                                        std::cout << ' ';
+                                    }
+                                }
+                            }
+                        }
+
+                        // --- Redraw Logic ---
+
+                        // 1. Draw Keys (if not taken)
+                        for (auto& k : *currentKeys) {
+                            k.draw();
+                        }
+
+                        // 2. Draw Switches (To show state changes / or \)
+                        for (auto& sw : *currentSwitches) {
+                            sw.draw();
+                        }
+
+                        // 3. Draw Doors
+                        for (const auto& d : *currentDoors) {
+                            d.getPlace().draw();
+                        }
+
+                        for (auto& b : *currentBombs) {
+                            if (!b.getTaken())
+                                b.getPlaceP().draw();
+                        }
+
+                        // 4. Draw Players
+                        for (int j = 0; j < GameScreens::NUM_OF_PLAYERS; j++) {
+                            if (!playerFinished[j]) players[j].draw();
+                        }
+
+                    }
+                    else {
+                        restart = true;
+                        running = false;
+                        break; // break player loop
                     }
 
-
-                    // --- Redraw Logic ---
-
-                    // 1. Draw Keys (if not taken)
-                    for (auto& k : *currentKeys) {
-                        k.draw();
-                    }
-
-                    // 2. Draw Switches (To show state changes / or \)
-                    for (auto& sw : *currentSwitches) {
-                        sw.draw();
-                    }
-
-                    // 3. Draw Doors
-                    for (const auto& d : *currentDoors) {
-                        d.getPlace().draw();
-                    }
-
-                    for (auto& b : *currentBombs) {
-                        if (!b.getTaken())
-                            b.getPlaceP().draw();
-                    }
-
-                    // 4. Draw Players
-                    for (int j = 0; j < GameScreens::NUM_OF_PLAYERS; j++) {
-                        if (!playerFinished[j]) players[j].draw();
-                    }
-                        
                 }
 
                 if (s.getNumLives() == 0) {
@@ -282,7 +344,7 @@ void Game::startGame() {
                     //if we pressed a direction key
 
                     for (int i = 0; i < GameScreens::NUM_OF_PLAYERS; i++) {
-                        if (!playerFinished[i]) players[i].keyPressed(std::tolower(keyBoard));
+                        if (!playerFinished[i]) players[i].keyPressed(std::tolower(keyBoard), *currScreenPtr);
                     }
 
                     //if player let go of an element

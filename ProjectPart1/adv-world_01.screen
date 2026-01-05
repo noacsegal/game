@@ -1,31 +1,30 @@
-WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW1WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-W                                                                              W
-W WWWWWWWWWWWWWWWWWWWWWWWWW    WWWWWWW   WWWW   WWWWWWWWWWWWWWWWWWWWWWWWWWWWW  W
-W W *   W                            W  *W                            W    * W W
-W W  *W W                            W * W                            W W *  W W
-W W K   W                            W   W                                   W W
-W WWWW                               W  *W                            W WWWWWW W
-W      @                             W * W                            W        W
-WWWWWWWWW                            W   W                            WWWWWWWWWW
-W                                    W  *W                                     W
-W             WWWWWWWWWWWWWWWWWWWWWWWW   WWWWWWWW   WWWWWWWWWWWWWW             W
-W                                                                W             W
-W                                                                W             W 
-W             W  WWWWWWWWWWWWWWWWWWWWW   WWWWWWWWWWWWWWWWWWWWWW  W             W
-W             W  W                                            W  W             W
-W             W  W                                            W  W             W
-W             W  W  WWWWWWWWWWWWWWWWWW    WWWWWWWWWWWWWWWWWW  W  W             W
-W             W  W  W              W   * W              W  W  W                W
-W             W  W  W              W \      W              W  W                W
-WWWWWWWWWWWWWWW  W  W              W * * W              W  W  W  WWWWWWWWWWWWWWW
-W              ? W  W              W        W              W  W  K             W
-W   ?            W  W              W        W              W  W                W
-W         $               ?                                             &      W
-W                                                                              W
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+W                    W       *                         W                       W
+W*      *            W      K*                         W   WWWWWWWWWWWWW       W
+W *    1*            W       *                         W   W           W       W
+W  *    *            W                                 W   W   WWWWWW  W       W
+W   *   *            WWWWWWWWWWWWWWWW*WWWWWWWWWWWWWWWWWW   W     $  W  W       W
+W    *  *            W                                 W   WWWWWWWWWW  W       W
+W K   * *            W                                 W               W       W
+W      **            W                                 WWWWWWWWWWWWWWWWW       W
+WWWWWWWW      WWWWWWWW                                                         W
+W                                                                   W          W
+W                                                            WWWWWWWWWWWW*WWWWWW
+W                                                            W                 W
+W   WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW                 W
+W                                                            W     \           W
+W                                                            W                 W
+W                                                            W                 W
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW                         WWWWWWWWWWWWWWWWWWW
+W                                  W                                           W
+W               &                  W                                           W
+W                                  W                             WWWWWWWWWWWWWWW
+W######                            *                             W     *!*     W
+W                                  W                             W      *      W
+W                                  W                                           W
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 Q
-L
-DOOR 1 2 1
-0 1     
-0    
+DOOR 1 1 0
+0 
+L             
 D

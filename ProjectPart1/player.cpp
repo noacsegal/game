@@ -22,7 +22,7 @@ void player::draw(char ch) {
 }
 
 
-void player::move(Screen& currScreen, riddle& rid) {
+bool player::move(Screen& currScreen, riddle& rid) {
 	point target_pos = body;
 	target_pos.move();
 	int dest_x = target_pos.getX();
@@ -30,6 +30,90 @@ void player::move(Screen& currScreen, riddle& rid) {
 
 	// Get the char at the target position
 	char charAtTarget = currScreen.getChar(target_pos);
+	// if player ran into a torch
+	if (charAtTarget == TORCH) {
+		if (heldType != ItemType::EMPTY) {
+			char itemToDrop = ' ';
+			if (heldType == ItemType::BOMB) itemToDrop = Bomb::BOMB;
+			if (heldType == ItemType::KEY) itemToDrop = key::KEY;
+			point dropPos(body.getX(), body.getY(), Direction::directions[Direction::STAY], itemToDrop);
+			currScreen.setCharCurrent(dropPos, itemToDrop);
+			dropPos.draw();
+		}
+		heldType = ItemType::TORCH;
+		heldBomb = nullptr;
+		heldKey = nullptr;
+		currScreen.setCharCurrent(target_pos, ' ');
+		body.draw(' ');
+		body.move();
+		body.draw();
+		return true;
+	}
+
+	// if player ran into a spring
+	if (launchTimer > 0) {
+		for (int i = 0; i < launchSpeed; ++i) {
+			point next_step = body;
+			body.changeDir(launchDir);
+			next_step.move();
+			char ahead = currScreen.getChar(next_step.getY(), next_step.getX());
+			if (ahead == Screen::WALL) {
+				launchTimer = 0;
+				break;
+			}
+			//need to add:: when there is 2 obstacle move slower by one and move them both
+			if (ahead == OBSTACLE) {
+				point push = next_step;
+				int push_x = next_step.getX() + launchDir.dirx;
+				int push_y = next_step.getY() + launchDir.diry;
+				if (currScreen.isFree(push_x, push_y)) {
+					point new_obs(push_x, push_y, Direction::directions[Direction::STAY], OBSTACLE);
+					currScreen.setCharCurrent(new_obs, OBSTACLE);
+					new_obs.draw();
+					body.draw(' ');
+					body.changePosition(next_step);
+					body.draw();
+					currScreen.setCharCurrent(next_step, ' ');
+				}
+				else {
+					launchTimer = 0;
+					break;
+				}
+			}
+			else {
+				body.draw(' ');
+				body.changePosition(next_step);
+				body.draw();
+			}
+		}
+		launchTimer--;
+		return true;
+	}
+	if (charAtTarget == SPRING) {
+		compressedCount++;
+		body.draw(' ');
+		currScreen.setCharCurrent(target_pos, ' ');
+		body.move();
+		body.draw();
+		return true;
+	}
+	if (compressedCount > 0 && charAtTarget == Screen::WALL) {
+		launchSpeed = compressedCount;
+		launchTimer = compressedCount * compressedCount;
+		launchDir.dirx = -body.getDir().dirx;
+		launchDir.diry = -body.getDir().diry;
+		for (int j = 0; j < compressedCount; ++j) {
+			int springX = body.getX() + (launchDir.dirx * j);
+			int springY = body.getY() + (launchDir.diry * j);
+			point springPos(springX, springY, Direction::directions[Direction::STAY], SPRING);
+			currScreen.setCharCurrent(springPos, SPRING);
+			springPos.draw();
+		}
+		body.draw();
+		compressedCount = 0;
+		body.changeDir(Direction::directions[Direction::STAY]);
+		return true;
+	}
 
 	// if player ran into an obstacle
 	if (charAtTarget == OBSTACLE) {
@@ -65,6 +149,7 @@ void player::move(Screen& currScreen, riddle& rid) {
 		//return false if the player was wrong 3 times
 		if (!rid.answerRiddle(*this, currScreen)) {
 			lives--;
+			heldType = ItemType::EMPTY;
 		}
 		body.move();
 		currScreen.setCharCurrent(body, ' ');
@@ -87,13 +172,15 @@ void player::move(Screen& currScreen, riddle& rid) {
 			body.draw();
 		}
 	}
-
+	return true;
 
 }
 
-void player::keyPressed(char ch) {
+void player::keyPressed(char ch, Screen& currScreen) {
 	size_t index = 0;
-	
+	Direction oldDir = body.getDir();
+	bool correctKey = false;
+
 	//when the key is one of the movment ones the direction of the player is changing accordingly
 	for (char key : keys) {
 		if (std::tolower(key) == std::tolower(ch)) {
@@ -102,10 +189,60 @@ void player::keyPressed(char ch) {
 		}
 		++index;
 	}
+	if (!correctKey) return;
+	Direction newDir = Direction::directions[index];
+
+	if (compressedCount > 0) {
+		if (index == Direction::STAY || newDir.dirx != oldDir.dirx || newDir.diry != oldDir.diry) {
+			launchSpeed = compressedCount;
+			launchTimer = compressedCount * compressedCount;
+			launchDir.dirx = -oldDir.dirx;
+			launchDir.diry = -oldDir.diry;
+			for (int j = 0; j < compressedCount; ++j) {
+				int springX = body.getX() + (oldDir.dirx * -j);
+				int springY = body.getY() + (oldDir.diry * -j);
+				point springPos(springX, springY, Direction::directions[Direction::STAY], SPRING);
+				currScreen.setCharCurrent(springPos, SPRING);
+				springPos.draw();
+			}
+			body.draw();
+			compressedCount = 0;
+			body.changeDir(Direction::directions[Direction::STAY]);
+			return;
+		}
+	}
+	if (launchTimer > 0) {
+		if (newDir.dirx == -launchDir.dirx && newDir.diry == -launchDir.diry) {
+			return;
+		}
+		if ((newDir.dirx != 0 && launchDir.dirx == 0) || (newDir.diry != 0 && launchDir.diry == 0)) {
+			point lateral_pos(body.getX() + newDir.dirx, body.getY() + newDir.diry, newDir, body.getChar());
+			body.draw(' ');
+			body.changeDir(newDir);
+			body.draw();
+		}
+		return;
+	}
+	if (std::tolower(ch) == std::tolower(dispose)) {
+		if (heldType != ItemType::EMPTY) {
+			char charToDrop = ' ';
+			if (heldType == ItemType::TORCH) charToDrop = TORCH;
+			if (heldType == ItemType::BOMB) charToDrop = Bomb::BOMB;
+			if (heldType == ItemType::KEY) charToDrop = key::KEY;
+
+			currScreen.setCharCurrent(body, charToDrop);
+			heldType = ItemType::EMPTY;
+			heldBomb = nullptr;
+			heldKey = nullptr;
+			body.draw();
+		}
+		return;
+	}
+
+	body.changeDir(newDir);
 }
 
 
-//ADD ON :
 
 //lower number of lives and return true if no more lives
 bool player::lowerLives() {

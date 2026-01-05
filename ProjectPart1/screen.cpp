@@ -11,8 +11,17 @@ void Screen::createScreenLine(const char* content, int i)
 	strcpy_s(this->originalScreen[i], (MAX_X), content);
 	
 }
+//draw the dark spots in a room
+void Screen::drawTile(int x, int y, bool lit) {
+	gotoxy(x, y);
+	if (lit || !isDark) {
+		std::cout << getChar(y, x);
+	}
+	else {
+		std::cout << ' ';
+	}
+}
 
-//chenged*********************************************************************
 //draws the entire screen
 void Screen::drawOriginal() const {
 	int y = 0;

@@ -13,7 +13,12 @@ class player
 public:
 	static constexpr size_t NUM_KEYS = 5;
 	static constexpr char OBSTACLE = '*';
-
+	static constexpr char SPRING = '#';
+	static constexpr char TORCH = '!';
+	int compressedCount = 0;
+	int launchTimer = 0;
+	int launchSpeed = 0;
+	Direction launchDir = { 0,0 };
 
 private:
 	// each player has: an array of keys, screen, body and a seperate key to dispose elements
@@ -36,11 +41,11 @@ public:
 
 	//player functions
 	//once the direction is decided the player moves in this direction until anthor one is chosen
-	void move(Screen& currScreen, riddle& rid); //*********************************************
+	bool move(Screen& currScreen, riddle& rid); //*********************************************
 	void draw();
 
 	void draw(char ch);
-	void keyPressed(char ch);//moves player in diffrent directions
+	void keyPressed(char ch, Screen& currScreen);//moves player in diffrent directions
 
 	
 
@@ -52,8 +57,6 @@ public:
 	point& bodyToChange() {
 		return body;
 	}
-
-	//ADD ON:
 
 	bool lowerLives();
 
@@ -100,6 +103,10 @@ public:
 
 	int RiddleTrysByRef()const {
 		return riddle_trys_left;
+	}
+
+	bool hasTorch() const {
+		return heldType == ItemType::TORCH;
 	}
 };
 

@@ -80,6 +80,7 @@ void GameScreens::printPlayorInventory(point topLeft, player& p1, player& p2)
         switch (t) {
         case ItemType::KEY:  return "KEY ";
         case ItemType::BOMB: return "BOMB";
+        case ItemType::TORCH: return "TORCH";
         default:             return "NONE";
         }
         };
