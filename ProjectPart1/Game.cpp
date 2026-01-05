@@ -3,10 +3,8 @@
 #include "Game.h"
 #include "player.h"
 #include <iostream>
-
 #include <windows.h>
 #include <conio.h>
-#include "utillities.h"
 
 
 void Game::startingScreen() {
@@ -122,14 +120,14 @@ void Game::startGame() {
                 }
                     
                 if (!hitDoor) {
+                    s.getBody().draw();
 
-                    // Check wall collisions / puzzles
                     s.move(*currScreenPtr, gs.riddleByRef());
+
+                    s.draw();
+
                     gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
-                        
-                    currScreenPtr->drawCurrent();
-                    players[0].draw();
-                    players[1].draw();
+
 
                     // --- Check Collision with KEYS ---
                     for (auto& k : *currentKeys) {
@@ -139,6 +137,7 @@ void Game::startGame() {
                                 s.updateKey(&k);
                                 k.changeTaken(true);
                                 s.updateItemType(ItemType::KEY);
+                                currScreenPtr->setCharCurrent(k.getPlaceP(), ' ');
                             }
                             gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
                         }
@@ -148,6 +147,7 @@ void Game::startGame() {
                     for (auto& sw : *currentSwitches) {
                         if (s.getBody() == sw.getPlace()) {
                             sw.toggle(); // This updates the boolean inside the switch
+                            currScreenPtr->setCharCurrent(sw.getPlace(), ' ');
                         }
                     }
 
@@ -159,6 +159,7 @@ void Game::startGame() {
                                 s.updateBomb(&b);
                                 s.updateItemType(ItemType::BOMB);
                                 b.setTaken(true);
+                                currScreenPtr->setCharCurrent(b.getPlaceP(), ' ');
                             }
                         }
                     }
@@ -302,8 +303,6 @@ void Game::startGame() {
                                 p.updateBomb(nullptr);
                                 p.updateItemType(ItemType::EMPTY);
                             }
-
-                            currScreenPtr->setCharCurrent(p.getBody(), ' '); //changes the screen
 
                         }
                     }

@@ -4,8 +4,10 @@
 #include <windows.h>
 #include <algorithm>
 
+
 // turn the input to lower case (string)
-void toLower(std::string& s) {
+void riddle::toLower(std::string& s)
+{
 	std::transform(s.begin(), s.end(), s.begin(),
 		[](unsigned char c) { return std::tolower(c); });
 }
@@ -14,13 +16,15 @@ void toLower(std::string& s) {
 bool riddle::ask_riddle() {
 
 	cls();
-	std::cout << riddles[numRid] << std::endl;
-	std::string input;
-	std::cin >> input;
-	toLower(input);
-	std::cin.ignore(1000, '\n'); // Ignore the next 1000 chars or until a newline
-	return (input == answers[numRid]);
+	if (numRid < riddles.size()) {
+		std::cout << riddles[numRid] << std::endl;
+		std::string input;
+		std::getline(std::cin, input);
+		toLower(input);
+		return (input == answers[numRid]);
 
+	}
+	return false;
 }
 
 void riddle::addRiddle(std::string rid, std::string ans)
@@ -63,9 +67,13 @@ bool riddle::answerRiddle(player& p, Screen& currscreen)
 		Sleep(1000);
 		result = false;
 	}
-	//redraw screen after riddle
 
-	currscreen.setCharCurrent(p.getBody(), ' ');
+	//redraw screen after riddle
+	char tile = currscreen.getChar(p.getBody());
+	if (tile != Screen::WALL ) {
+		currscreen.setCharCurrent(p.getBody(), ' ');
+	}
+
 	cls();
 	currscreen.drawCurrent();
 	numRid++;

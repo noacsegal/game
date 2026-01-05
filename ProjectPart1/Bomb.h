@@ -1,11 +1,10 @@
 #pragma once
 #include "point.h"
-#include "screen.h"
 #include "utillities.h"
+#include "screen.h"
 
 class player;
 class Screen;
-
 class Bomb
 {
 public:

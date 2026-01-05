@@ -4,6 +4,7 @@
 #include "point.h"
 #include "Key.h"
 #include "Bomb.h"
+#include "utillities.h"
 
 class riddle;
 

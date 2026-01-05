@@ -31,15 +31,17 @@ bool GameScreens::LoadGameScreens() {
         }
 
         //checks if we are missing a player position
-        point p = { 0,0, Direction::directions[Direction::STAY], ' ' };
+        point p = { -1,-1, Direction::directions[Direction::STAY], ' ' };
         if (screen.player1posRef() == p || screen.player2posRef() == p) {
             allFiles.errorFunction("No player start position");
             return false;
         }
+        
 
         //finds: keys, switches, doors and bombs
         fillAddedData(screen);
         createStartAndEndScreen();
+        
 
         if (!allFiles.createRiddles(gameRiddles)) {
             return false;
@@ -50,7 +52,10 @@ bool GameScreens::LoadGameScreens() {
             return false;
         }
 
-
+        if (screen.legendPosByRef() == p) {
+            allFiles.errorFunction("No legend position");
+            return false;
+        }
         screenFile.close();
     }
 

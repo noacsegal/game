@@ -5,6 +5,7 @@
 #include "Switch.h"
 #include "Door.h"
 #include "Bomb.h"
+#include "utillities.h"
 #include "point.h"
 class Bomb;
 
@@ -24,9 +25,9 @@ private:
 	std::vector <Switch> screenSwitches;
 	std::vector <Door> screenDoors;
 	std::vector <Bomb> screenBombs;
-	point startPosPlayer1 = { 0,0, Direction::directions[Direction::STAY], ' '};
-	point startPosPlayer2 = { 0,0, Direction::directions[Direction::STAY], ' '};
-	point legendPos = { 0,0, Direction::directions[Direction::STAY], ' ' };
+	point startPosPlayer1 = { -1,-1, Direction::directions[Direction::STAY], ' '};
+	point startPosPlayer2 = { -1,-1, Direction::directions[Direction::STAY], ' '};
+	point legendPos = { -1,-1, Direction::directions[Direction::STAY], ' ' };
 	
 	//return the char from a specific point of the  current screen
 	char charAtCurrent(const point& p) const {//changed********************************************************************************
@@ -55,7 +56,7 @@ public:
 		return screenDoors;
 	}
 
-	char getChar(point& p) const {
+	char getChar(const point& p) const {
 		return currentScreen[p.getY()][p.getX()];
 	}
 

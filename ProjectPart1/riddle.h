@@ -1,7 +1,7 @@
 #pragma once
-#include "utillities.h"
 #include "player.h"
 #include "screen.h"
+#include "utillities.h"
 
 class riddle
 {
@@ -12,6 +12,7 @@ class riddle
 
 public:
 	riddle(){}
+	static void toLower(std::string& s);
 
 	static constexpr char RIDDLE = '?';
 

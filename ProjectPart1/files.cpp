@@ -4,8 +4,10 @@
 #include "Screen.h"
 #include "Game.h"
 #include <conio.h>
-#include <Windows.h>
-
+#include "utillities.h"
+#include <windows.h>
+#include <cctype> 
+#include "riddle.h"
 
 //function from lab with changes- return false if no files were found
 bool files::getAllScreenFileNames()
@@ -67,17 +69,16 @@ bool files::createScreen(std::ifstream& screenFile, Screen& screenToFill){
 			if (c == '$') {
 				screenToFill.updatePlayer1Pos(p);
 				screenToFill.setCharOriginal(p, c);
-
+				screenToFill.setCharCurrent(p, ' ');
 			}
 			else if (c == '&') {
 				screenToFill.updatePlayer2Pos(p);
 				screenToFill.setCharOriginal(p, c);
-
+				screenToFill.setCharCurrent(p, ' ');
 			}
 			else {
 				screenToFill.setCharCurrent(p, c);
 				screenToFill.setCharOriginal(p, c);
-
 			}
 			curr_col++;
 		}
@@ -210,7 +211,7 @@ bool files::createRiddles(riddle& ridToFill)
 
 					std::string answer;
 					std::getline(riddleFile, answer);
-
+					riddle::toLower(answer);
 					ridToFill.addRiddle(entireRid, answer);
 
 				}

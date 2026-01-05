@@ -2,8 +2,8 @@
 #pragma once
 #include "screen.h"
 #include "key.h"
-#include "Door.h"
 #include "utillities.h"
+#include "Door.h"
 #include "Bomb.h"
 #include "riddle.h"
 
