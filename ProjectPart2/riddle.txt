@@ -1,0 +1,15 @@
+RIDDLE 4
+I am a keyword used to group together Data of different types, in good or bad weather.
+I am often given a name, like a blueprint you draft.
+I lay out the members, fore and aft.
+What am I ? 
+struct
+
+RIDDLE 1
+What do you call a bear with no teeth?
+gummy bear
+
+RIDDLE 2
+Every night I'm told what to do, and each morning I do what i'm told. 
+But I still don't escape your scold. What am I?
+alarm clock
