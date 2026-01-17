@@ -137,11 +137,14 @@
     <ClInclude Include="input.h" />
     <ClInclude Include="key.h" />
     <ClInclude Include="keyBoardInput.h" />
+    <ClInclude Include="Obstacle.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="riddle.h" />
     <ClInclude Include="screen.h" />
+    <ClInclude Include="Spring.h" />
     <ClInclude Include="Switch.h" />
+    <ClInclude Include="Torch.h" />
     <ClInclude Include="utillities.h" />
   </ItemGroup>
   <ItemGroup>
@@ -155,11 +158,14 @@
     <ClCompile Include="key.cpp" />
     <ClCompile Include="keyBoardInput.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Obstacle.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="riddle.cpp" />
     <ClCompile Include="screen.cpp" />
+    <ClCompile Include="Spring.cpp" />
     <ClCompile Include="Switch.cpp" />
+    <ClCompile Include="Torch.cpp" />
     <ClCompile Include="utillities.cpp" />
   </ItemGroup>
   <ItemGroup>

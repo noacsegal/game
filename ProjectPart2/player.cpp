@@ -10,6 +10,9 @@
 #include <windows.h>
 #include <conio.h>
 #include "Bomb.h"
+#include "Spring.h"
+#include "Obstacle.h"
+#include "Torch.h"
 
 //draw body character
 void player::draw() {
@@ -25,138 +28,28 @@ void player::draw(char ch) {
 bool player::move(Screen& currScreen, riddle& rid) {
 	point target_pos = body;
 	target_pos.move();
-	int dest_x = target_pos.getX();
-	int dest_y = target_pos.getY();
-
-	// Get the char at the target position
 	char charAtTarget = currScreen.getChar(target_pos);
 
-	// if player ran into a torch
-	if (charAtTarget == TORCH) {
-
-		if (heldType == ItemType::EMPTY) {
-
-			heldType = ItemType::TORCH;
-			heldBomb = nullptr;
-			heldKey = nullptr;
-			currScreen.setCharCurrent(target_pos, ' ');
-			body.draw(' ');
-			body.move();
-			body.draw();
-			return true;
-		}
-		else {
-			currScreen.setCharCurrent(body, ' ');
-			body.draw(' ');
-			point temp = body;
-			body.move();
-			body.draw();
-
-			currScreen.setCharCurrent(body, player::TORCH);
-			temp.draw('!');
-			return true;
-		}
-	}
-
-	// if player ran into a spring
+	// Handle Launching
 	if (launchTimer > 0) {
-		for (int i = 0; i < launchSpeed; ++i) {
-			point next_step = body;
-			body.changeDir(launchDir);
-			next_step.move();
-			char ahead = currScreen.getChar(next_step);
-			if (ahead == Screen::WALL) {
-				launchTimer = 0;
-				break;
-			}
-
-			if (ahead == OBSTACLE) {
-				point push = next_step;
-				int push_x = next_step.getX() + launchDir.dirx;
-				int push_y = next_step.getY() + launchDir.diry;
-				if (currScreen.isFree(push_x, push_y)) {
-					point new_obs(push_x, push_y, Direction::directions[Direction::STAY], OBSTACLE);
-					currScreen.setCharCurrent(new_obs, OBSTACLE);
-					new_obs.draw();
-					body.draw(' ');
-					body.changePosition(next_step);
-					body.draw();
-					currScreen.setCharCurrent(next_step, ' ');
-				}
-				else {
-					launchTimer = 0;
-					break;
-				}
-			}
-			else {
-				char charUnderPlayer = currScreen.getChar(body);
-
-				body.draw(charUnderPlayer);
-
-				body.changePosition(next_step);
-				body.draw();
-			}
-		}
-		launchTimer--;
-		return true;
-	}
-	if (charAtTarget == SPRING) {
-		compressedCount++;
-		springPath.push_back(target_pos);
-		body.draw(' ');
-		currScreen.setCharCurrent(target_pos, ' ');
-		body.move();
-		body.draw();
-		return true;
-	}
-	if (compressedCount > 0 && charAtTarget == Screen::WALL) {
-		launchSpeed = compressedCount;
-		launchTimer = compressedCount * compressedCount;
-		launchDir.dirx = -body.getDir().dirx;
-		launchDir.diry = -body.getDir().diry;
-		for (auto& pos : springPath) {
-			currScreen.setCharCurrent(pos, SPRING);
-			pos.draw(SPRING);
-		}
-		body.draw();
-		springPath.clear();
-		compressedCount = 0;
-		body.changeDir(Direction::directions[Direction::STAY]);
-		return true;
+		return Spring::handleActiveLaunch(body, currScreen, launchSpeed, launchTimer, launchDir);
 	}
 
-	// if player ran into an obstacle
-	if (charAtTarget == OBSTACLE) {
-		// Calculate where the obstacle needs to be pushed to
-		Direction dir = body.getDir();
-		int push_x = dest_x + dir.dirx;
-		int push_y = dest_y + dir.diry;
+	// Handle collisions based on the character hit
+	switch (charAtTarget) {
+	case TORCH:
+		Torch::handleCollision(*this, body, currScreen, target_pos);
+		break;
 
-		// check if we can move the obstacle
-		if (currScreen.isFree(push_x, push_y)) {
+	case OBSTACLE:
+		Obstacle::handleCollision(body, currScreen, target_pos);
+		break;
 
-			point obstacle_curr_loc = target_pos;
-			obstacle_curr_loc.draw(' ');
-			currScreen.setCharCurrent(obstacle_curr_loc, ' ');
+	case SPRING:
+		Spring::handleCollision(body, currScreen, target_pos, compressedCount, springPath);
+		break;
 
-			// Draw obstacle at new spot
-			point obstacle_new_loc(push_x, push_y, Direction::directions[Direction::STAY], OBSTACLE);
-			obstacle_new_loc.draw();
-			currScreen.setCharCurrent(obstacle_new_loc, OBSTACLE);
-
-			body.draw(' ');
-			body.move();
-			body.draw();
-
-		}
-		else {
-			body.changeDir(Direction::directions[Direction::STAY]);
-		}
-	}
-
-	else if (charAtTarget == riddle::RIDDLE) {
-
-		//return false if the player was wrong 3 times
+	case riddle::RIDDLE:
 		if (!rid.answerRiddle(*this, currScreen)) {
 			lives--;
 			heldType = ItemType::EMPTY;
@@ -164,29 +57,30 @@ bool player::move(Screen& currScreen, riddle& rid) {
 		body.move();
 		currScreen.setCharCurrent(body, ' ');
 		body.changeDir(Direction::directions[Direction::STAY]);
+		break;
 
-	}
+	case Screen::WALL:
+		if (compressedCount > 0) {
+			Spring::triggerLaunch(body, currScreen, compressedCount, launchSpeed, launchTimer, launchDir, springPath);
+		}
+		else {
+			body.changeDir(Direction::directions[Direction::STAY]);
+		}
+		break;
 
-
-	else if (charAtTarget == Screen::WALL) {
-		body.changeDir(Direction::directions[Direction::STAY]);
-	}
-
-
-	else {
-		Direction currentDir = body.getDir();
-
-		if (currentDir.dirx != 0 || currentDir.diry != 0) {
-			char charUnderPlayer = currScreen.getChar(body);
-			body.draw(charUnderPlayer);
-
+	default:
+		// Standard move into empty space
+		if (body.getDir().dirx != 0 || body.getDir().diry != 0) {
+			char under = currScreen.getChar(body);
+			body.draw(under);
 			body.move();
 			body.draw();
 		}
+		break;
 	}
 	return true;
-
 }
+
 
 void player::keyPressed(char ch, Screen& currScreen) {
 	size_t index = 0;

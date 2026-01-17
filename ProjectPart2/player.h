@@ -16,10 +16,11 @@ public:
 	static constexpr char SPRING = '#';
 	static constexpr char TORCH = '!';
 	int compressedCount = 0;
-	int launchTimer = 0;
 	int launchSpeed = 0;
+	int launchTimer = 0;
 	Direction launchDir = { 0,0 };
 	std::vector<point> springPath;
+	
 private:
 	// each player has: an array of keys, screen, body and a seperate key to dispose elements
 	char keys[NUM_KEYS];
@@ -40,7 +41,7 @@ public:
 
 	//player functions
 	//once the direction is decided the player moves in this direction until anthor one is chosen
-	bool move(Screen& currScreen, riddle& rid); //*********************************************
+	bool move(Screen& currScreen, riddle& rid); 
 	void draw();
 
 	void draw(char ch);
@@ -105,5 +106,10 @@ public:
 
 	bool hasTorch() const {
 		return heldType == ItemType::TORCH;
+	}
+
+	void changeHeld() {
+		heldBomb = nullptr;
+		heldKey = nullptr;
 	}
 };
