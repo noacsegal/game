@@ -1,9 +1,15 @@
 #include "Game.h"
 
-int main() {
+int main(int argc, char* argv[]) {
 
-	Game g;
-	g.startGame();
+	Game game;
+
+	bool loadMode = false;
+	if (argc > 1 && strcmp(argv[1], "-load") == 0) {
+		loadMode = true;
+	}
+	game.setGameMode(loadMode);
+	game.startGame();
 
 	return 0;
 }
