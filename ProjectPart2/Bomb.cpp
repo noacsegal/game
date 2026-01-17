@@ -10,23 +10,19 @@ void Bomb::goOff(player& p1, player& p2, Screen& currScreen)
 	int x_end = place.getX() + 3;
 	int y_end = place.getY() + 3;
 
-	//check left and top of screen
-	if (x < 0)
-		x = 0;
-	if (y < 0)
-		y = 0;
+	if (x < 1) x = 1;
+	if (x_end > Screen::MAX_X - 2) x_end = Screen::MAX_X - 2;
 
-	//check right and bottom screen
-	if (x_end > Screen::MAX_X - 1)
-		x_end = Screen::MAX_X - 1;
-	if (y_end > Screen::MAX_Y)
-		y_end = Screen::MAX_Y;
+	// Fix Y bounds
+	if (y < 1) y = 1;
+	if (y_end > Screen::MAX_Y - 2) y_end = Screen::MAX_Y - 2;
 
 	int save_y = y;
 	//erases everything around the bomb
 	while (x < x_end) {
 		y = save_y;
 		while (y < y_end) {
+
 
 			//check if bomb met a player
 			if (x == p1.getBody().getX() && y == p1.getBody().getY()) {
@@ -39,7 +35,6 @@ void Bomb::goOff(player& p1, player& p2, Screen& currScreen)
 			gotoxy(x, y);
 			std::cout << ' ' << std::flush; // change the screen we see
 			point todelete(x, y, Direction::directions[Direction::STAY], ' ');
-			//changed ***************************************************************************************************************
 			currScreen.setCharCurrent(todelete, ' ');//change the actual screen
 			y++;
 		}
@@ -58,6 +53,8 @@ void Bomb::countdown(player& p1, player& p2, Screen& currScreen) {
 		place.draw(display + '0');
 	}
 
-	else
+	else {
 		goOff(p1, p2, currScreen);
+		place.draw(' ');
+	}
 }
