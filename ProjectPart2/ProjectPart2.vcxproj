@@ -131,15 +131,17 @@
     <ClInclude Include="Bomb.h" />
     <ClInclude Include="direction.h" />
     <ClInclude Include="Door.h" />
+    <ClInclude Include="FileInput.h" />
     <ClInclude Include="files.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameScreens.h" />
-    <ClInclude Include="input.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="key.h" />
     <ClInclude Include="keyBoardInput.h" />
     <ClInclude Include="Obstacle.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="point.h" />
+    <ClInclude Include="RecordingInput.h" />
     <ClInclude Include="riddle.h" />
     <ClInclude Include="screen.h" />
     <ClInclude Include="Spring.h" />
@@ -151,6 +153,7 @@
     <ClCompile Include="Bomb.cpp" />
     <ClCompile Include="direction.cpp" />
     <ClCompile Include="Door.cpp" />
+    <ClCompile Include="FileInput.cpp" />
     <ClCompile Include="files.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameScreens.cpp" />
@@ -161,6 +164,7 @@
     <ClCompile Include="Obstacle.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="point.cpp" />
+    <ClCompile Include="RecordingInput.cpp" />
     <ClCompile Include="riddle.cpp" />
     <ClCompile Include="screen.cpp" />
     <ClCompile Include="Spring.cpp" />

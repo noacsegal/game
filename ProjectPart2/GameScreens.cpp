@@ -152,12 +152,12 @@ void GameScreens::createStartAndEndScreen()
           "                                                                               ",//6
           "                                                                               ",//7
           "                                                                               ",//8
-          "                                                                               ",//9
-          "                                                                               ",//10
-          "                                                                               ",//11
-          "                              Congratulations!                                 ",//12
-          "                     You have succesfully finished the game                    ",//13
-          "                       press escape to end the simulation                      ",//14
+          "                              Congratulations!                                 ",//9
+          "                     You have succesfully finished the game                    ",//10
+          "                       press escape to end the simulation                      ",//11
+          "                                                                               ",//12
+          "                                                                               ",//13
+          "                                                                               ",//14
           "                                                                               ",//15
           "                                                                               ",//16
           "                                                                               ",//17
@@ -167,7 +167,7 @@ void GameScreens::createStartAndEndScreen()
           "                                                                               ",//21
           "                                                                               ",//22
           "                                                                               ",//23
-          "                                                                               "//24
+          "                                                                               ",//24
     };
 
 

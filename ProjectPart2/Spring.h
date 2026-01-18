@@ -1,5 +1,6 @@
 #pragma once
-
+#include <vector>
+class Direction;
 class player;
 class Screen;
 class point;

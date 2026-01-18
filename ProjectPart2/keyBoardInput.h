@@ -2,10 +2,11 @@
 #include <conio.h>
 #include "input.h"
 
-class keyBoardInput : public input
+class keyBoardInput : public Input
 {
 public:
-    virtual char getInput() override {
+
+    virtual char getInput(long cycle) override {
         if (_kbhit()) {
             return _getch();
         }

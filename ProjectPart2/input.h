@@ -1,9 +1,9 @@
 #pragma once
-class input
+class Input
 {
 
 public:
-	virtual char getInput() = 0;
-	virtual ~input(){}
+	virtual char getInput(long cycle) = 0;
+	virtual ~Input(){}
 };
 

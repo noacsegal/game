@@ -6,7 +6,130 @@
 #include <windows.h>
 #include <conio.h>
 
+//outer game function
+void Game::startGame() {
 
+    //in case of restart
+    hideCursor();
+    bool restart = false;
+
+    do {
+        GameScreens gs;
+
+
+        if (!gs.LoadGameScreens()) break;
+
+        restart = false; // Reset flag for this run
+
+        Screen* currScreenPtr = &gs.startScreenByRef();
+
+
+        //waits to start the game
+        if (!silentMode) {
+            currScreenPtr->drawOriginal();
+            startingScreen();
+
+        }
+        int indexScreen = 0;
+
+        levelStatus result = levelStatus::RESTARTFAIL;
+        
+        //create two players
+        player players[] = {
+            player(currScreenPtr->player1posRef(), "wdxas", 'e'),
+            player(currScreenPtr->player2posRef(), "ilmjk", 'o')
+        };
+
+        //loop all screens
+        while (indexScreen < gs.numOfScreens()) {
+
+            //load screen
+            currScreenPtr = &gs.ScreeniByRef(indexScreen);
+
+            players[0] = player(currScreenPtr->player1posRef(), "wdxas", 'e');
+            players[1] = player(currScreenPtr->player2posRef(), "ilmjk", 'o');
+
+            players[0].changeBodyChar('$');
+            players[1].changeBodyChar('&');
+
+            cls();
+            gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
+
+            currScreenPtr->drawOriginal();
+            //draw players
+            for (auto& s : players) {
+                s.draw();
+            }
+
+            //play this specific level
+            result = playLevel(currScreenPtr, players, gs, indexScreen);
+            
+            //check what happened at the end of the level
+            if (result == levelStatus::RESTARTFAIL || result == levelStatus::RESTARTKEY) {
+                restart = true; // Break inner loop, trigger outer do-while
+                break;
+            }
+
+            //log when players moved screens
+            else if (result == levelStatus::NEXT_LEVEL) {
+                indexScreen++; // Advance to next level
+                logEvent("Player moved to Screen " + std::to_string(indexScreen + 2)); // +2 because index 0 is Screen 1, moving to Screen 2
+
+            }
+
+            else if (result == levelStatus::EXIT) {
+                logEvent("Game exited by user.");
+                cls();
+                gotoxy(0, 0);
+                std::cout << "You have stopped the game :(" << std::endl;
+                Sleep(1000);
+                std::cout << "Goodbye" << std::endl;
+                Sleep(1000);
+                if (resultFile.is_open()) resultFile.close();
+                return;
+            }
+        }
+
+
+        if (!restart && indexScreen == gs.numOfScreens()) {
+            if (!silentMode) {
+                int score = (players[0].getNumLives() + players[1].getNumLives()) * 100;
+                logEvent("Game Ended. Final Score: " + std::to_string(score));
+
+                if (resultFile.is_open()) resultFile.close();
+                
+                currScreenPtr = &gs.endScreenByRef();
+                cls();
+                currScreenPtr->drawOriginal();
+
+                gotoxy(48, 13);
+                std::cout << "The Final Score: " << score;
+
+                // Simple wait for exit
+                while (true) {
+                    if (_kbhit() && _getch() == KeyBoardKeys::ESC) break;
+                }
+            }
+           
+        }
+
+        if (result == levelStatus::RESTARTFAIL && !silentMode) {
+
+            cls();
+            gotoxy(0, 0);
+            std::cout << "You have lost the game :(" << std::endl;
+            Sleep(1000);
+            std::cout << "better luck next time" << std::endl;
+            Sleep(1000);
+            std::cout << "the game will restart now" << std::endl;
+            Sleep(1000);
+        }
+        if (silentMode) restart = false;
+    } while (restart);
+
+}
+
+//prints the first screen and waits to start
 void Game::startingScreen() {
     bool flag = true;
     while (flag) {
@@ -20,6 +143,130 @@ void Game::startingScreen() {
         Sleep(10);
     }
 
+}
+
+//play one level
+Game::levelStatus Game::playLevel(Screen* currScreenPtr, player* players, GameScreens& gs, int indexScreen)
+{
+    bool running = true;
+    bool playerFinished[GameScreens::NUM_OF_PLAYERS] = { false, false };
+
+    // Initial Draw
+    currScreenPtr->drawOriginal();
+    for (const auto& d : currScreenPtr->screenDoorByRef()) d.getPlace().draw();
+
+    while (running) {
+
+        // input handle
+        levelStatus inputStatus = handleInput(players, currScreenPtr, gs, cycle);
+        if (inputStatus == levelStatus::RESTARTKEY || inputStatus == levelStatus::EXIT) return inputStatus;
+        
+        int livesBeforePlayer1 = players[0].getNumLives();
+        int livesBeforePlayer2 = players[1].getNumLives();
+        
+        // moving
+        for (int i = 0; i < GameScreens::NUM_OF_PLAYERS; i++) {
+            if (!playerFinished[i]) {
+                handlePlayerMove(players[i], currScreenPtr, gs, playerFinished[i], players);
+            }
+        }
+
+        int livesAfterPlayer1 = players[0].getNumLives();
+        int livesAfterPlayer2 = players[1].getNumLives();
+
+        if (livesAfterPlayer1 < livesBeforePlayer1) {
+            logEvent("Player 1 lost a life");
+        }
+
+        if (livesAfterPlayer2 < livesBeforePlayer2) {
+            logEvent("Player 2 lost a life");
+        }
+        // draw whats needed
+        drawLevel(currScreenPtr, players, indexScreen, playerFinished);
+
+        //next level check
+        if (playerFinished[0] && playerFinished[1]) return levelStatus::NEXT_LEVEL;
+
+        if (players[0].getNumLives() == 0 || players[1].getNumLives() == 0) {
+            return levelStatus::RESTARTFAIL;
+        }
+
+        // checks bombs
+        for (auto& b : currScreenPtr->screenBombsByRef()) {
+            if (b.isTicking()) b.countdown(players[0], players[1], *currScreenPtr);
+        }
+
+        Sleep(sleepTime);
+        currentCycle++;
+    }
+    return levelStatus::RESTARTFAIL;
+}
+
+
+
+//handles input for the level
+Game::levelStatus Game::handleInput(player* players, Screen* currScreenPtr, GameScreens& gs, long cycle)
+{
+    char keyBoard = input->getInput(cycle);
+
+    if (keyBoard != 0) {
+
+        if (keyBoard == KeyBoardKeys::ESC) {
+
+            gotoxy(0, Screen::MAX_Y);
+            std::cout << "Paused. press h to restart or ESC to exit. press anything else to continue                 ";
+            keyBoard = _getch();
+            if (tolower(keyBoard) == HOME) {
+                gotoxy(0, Screen::MAX_Y);
+                std::cout << "                                                                          ";
+                gs.clearPlayerInventory(currScreenPtr->legendPosByRef());
+                return levelStatus::RESTARTKEY;
+            }
+            if (tolower(keyBoard) == ESC) {
+                return levelStatus::EXIT;
+            }
+            // Clear pause message
+            gotoxy(0, Screen::MAX_Y);
+            std::cout << "                                                                               ";
+        }
+
+        else {
+            // Movement Keys
+            for (int i = 0; i < GameScreens::NUM_OF_PLAYERS; i++) {
+                players[i].keyPressed(std::tolower(keyBoard), *currScreenPtr);
+            }
+
+            for (int j = 0; j < GameScreens::NUM_OF_PLAYERS; j++) {
+
+                player& p = players[j];
+
+                //if we pressed the char to get rid of something and we're holding something
+                if (keyBoard == p.getDisposeChar() && p.getItemType() != ItemType::EMPTY) {
+
+                    if (p.getItemType() == ItemType::KEY) {
+                        p.changeKey()->getPlaceP().changePosition(p.getBody());//change position of key
+                        p.changeKey()->changeTaken(false); //key knows it isnt being held
+                        p.updateKey(nullptr); //player doesnt have key
+                        p.updateItemType(ItemType::EMPTY); // the player knows it isn't holding an item
+                    }
+
+                    else if (p.getItemType() == ItemType::BOMB) {
+                        p.changeBomb()->turnOn();
+                        p.changeBomb()->getPlaceP().changePosition(p.getBody());//change position of bomb
+                        p.updateBomb(nullptr);
+                        p.updateItemType(ItemType::EMPTY);
+                    }
+
+                    else if (p.getItemType() == ItemType::TORCH) {
+                        currScreenPtr->setCharCurrent(p.getBody(), player::TORCH);
+                        p.updateItemType(ItemType::EMPTY);
+                        p.getBody().draw(player::TORCH);
+                    }
+                }
+            }
+        }
+    }
+    return levelStatus::NEXT_LEVEL; // Means "Continue Playing", not actually next level yet
 }
 
 //checks all the things for one players moving
@@ -66,11 +313,9 @@ void Game::handlePlayerMove(player& s, Screen* currScreenPtr, GameScreens& gs, b
     //check collisions
 
     if (!hitDoor) {
-        s.getBody().draw();
+        s.draw();
 
         if (s.move(*currScreenPtr, gs.riddleByRef())) {
-
-            s.draw();
 
             gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
 
@@ -127,7 +372,7 @@ void Game::handlePlayerMove(player& s, Screen* currScreenPtr, GameScreens& gs, b
 }
 
 //handles all the redrawing needed
-void Game::drawLevel(Screen* currScreenPtr, player* players, int indexScreen, bool playerFinished[])
+void Game::drawLevel(Screen* currScreenPtr, player* players, int indexScreen, bool* playerFinished)
 {
     bool isScreen1 = (indexScreen == 0);
     int darkMinX = 0, darkMaxX = 21;
@@ -195,201 +440,39 @@ void Game::drawLevel(Screen* currScreenPtr, player* players, int indexScreen, bo
             b.getPlaceP().draw();
         }
     }
-
+    //isVisible(players[j].getBody().getX(), players[j].getBody().getY()) &&
     //  Draw Players (Only if Visible)
     for (int j = 0; j < GameScreens::NUM_OF_PLAYERS; j++) {
-        if (isVisible(players[j].getBody().getX(), players[j].getBody().getY()) && playerFinished[j]) {
-               players[j].draw();
+        if (!playerFinished[j]) {
+            players[j].draw();
         }
     }
 }
 
-//handles input for the level
-// this is what will need to be changed
-//******************************************************************************************************************
-Game::levelStatus Game::handleInput(player* players, Screen* currScreenPtr, GameScreens& gs)
+
+void Game::setGameMode(bool isLoadMode)
 {
-    if (_kbhit()) {
-        char keyBoard = _getch();
+    silentMode = isLoadMode;
 
-        if (keyBoard == KeyBoardKeys::ESC) {
-
-            gotoxy(0, Screen::MAX_Y);
-            std::cout << "Paused. 'h' home, ESC continue.                  ";
-            keyBoard = _getch();
-            if (tolower(keyBoard) == HOME) {
-                std::cout << "                                                 ";
-                gs.clearPlayerInventory(currScreenPtr->legendPosByRef());
-                return levelStatus::RESTARTKEY;
-            }
-
-            // Clear pause message
-            gotoxy(0, Screen::MAX_Y);
-            std::cout << "                                                 ";
-        }
-
-        else {
-            // Movement Keys
-            for (int i = 0; i < GameScreens::NUM_OF_PLAYERS; i++) {
-                players[i].keyPressed(std::tolower(keyBoard), *currScreenPtr);
-            }
-
-            for (int j = 0; j < GameScreens::NUM_OF_PLAYERS; j++) {
-
-                player& p = players[j];
-
-                //if we pressed the char to get rid of something and we're holding something
-                if (keyBoard == p.getDisposeChar() && p.getItemType() != ItemType::EMPTY) {
-
-                    if (p.getItemType() == ItemType::KEY) {
-                        p.changeKey()->getPlaceP().changePosition(p.getBody());//change position of key
-                        p.changeKey()->changeTaken(false); //key knows it isnt being held
-                        p.updateKey(nullptr); //player doesnt have key
-                        p.updateItemType(ItemType::EMPTY); // the player knows it isn't holding an item
-                    }
-
-                    else if (p.getItemType() == ItemType::BOMB) {
-                        p.changeBomb()->turnOn();
-                        p.changeBomb()->getPlaceP().changePosition(p.getBody());//change position of bomb
-                        p.updateBomb(nullptr);
-                        p.updateItemType(ItemType::EMPTY);
-                    }
-
-                    else if (p.getItemType() == ItemType::TORCH) {
-                        currScreenPtr->setCharCurrent(p.getBody(), player::TORCH);
-                        p.updateItemType(ItemType::EMPTY);
-                        p.getBody().draw(player::TORCH);
-                    }
-                }
-            }
-        }
+    if (isLoadMode) {
+        input = &filePlay;
+        filePlay.init();
+        sleepTime = 10; 
     }
-    return levelStatus::NEXT_LEVEL; // Means "Continue Playing", not actually next level yet
+    else {
+        input = &recordingPlay;
+        recordingPlay.init();
+        sleepTime = 50;
+        resultFile.open("adv-world.result");
+    }
 }
 
-Game::levelStatus Game::playLevel(Screen* currScreenPtr, player* players, GameScreens& gs, int indexScreen)
+void Game::logRiddleEvent(std::string riddle, std::string answer, bool isCorrect)
 {
-    bool running = true;
-    bool playerFinished[GameScreens::NUM_OF_PLAYERS] = { false, false };
-
-    // Initial Draw
-    currScreenPtr->drawOriginal();
-    for (const auto& d : currScreenPtr->screenDoorByRef()) d.getPlace().draw();
-
-    while (running) {
-
-        // input handle
-        levelStatus inputStatus = handleInput(players, currScreenPtr, gs);
-        if (inputStatus == levelStatus::RESTARTKEY) return inputStatus;
-
-        // mooving
-        for (int i = 0; i < GameScreens::NUM_OF_PLAYERS; i++) {
-            if (!playerFinished[i]) {
-                handlePlayerMove(players[i], currScreenPtr, gs, playerFinished[i], players);
-            }
-        }
-
-        // draw ehats needed
-        drawLevel(currScreenPtr, players, indexScreen, playerFinished);
-
-        //next level check
-        if (playerFinished[0] && playerFinished[1]) return levelStatus::NEXT_LEVEL;
-
-        if (players[0].getNumLives() == 0 || players[1].getNumLives() == 0) {
-            return levelStatus::RESTARTFAIL;
-        }
-
-        // checks bombs
-        for (auto& b : currScreenPtr->screenBombsByRef()) {
-            if (b.isTicking()) b.countdown(players[0], players[1], *currScreenPtr);
-        }
-
-        Sleep(50);
+    if (resultFile.is_open()) {
+        std::string status = isCorrect ? "Correct" : "Incorrect";
+        resultFile << currentCycle << ": Riddle: " << riddle
+            << " | Answer: " << answer
+            << " | Result: " << status << std::endl;
     }
-    return levelStatus::RESTARTFAIL;
-}
-
-void Game::startGame() {
-
-    //in case of restart
-    hideCursor();
-    bool restart = false;
-
-    do {
-        GameScreens gs;
-
-
-        if (!gs.LoadGameScreens()) break;
-
-        restart = false; // Reset flag for this run
-
-        Screen* currScreenPtr = &gs.startScreenByRef();
-        currScreenPtr->drawOriginal();
-       
-
-        //waits to start the game
-        startingScreen();
-        int indexScreen = 0;
-
-        levelStatus result;
-
-        //loop all screens
-        while (indexScreen < gs.numOfScreens()) {
-            
-            //load screen
-            currScreenPtr = &gs.ScreeniByRef(indexScreen);
-            
-            //create two players
-            player players[] = {
-                player(currScreenPtr->player1posRef(), "wdxas", 'e'),
-                player(currScreenPtr->player2posRef(), "ilmjk", 'o')
-            };
-
-            players[0].changeBodyChar('$');
-            players[1].changeBodyChar('&');
-            
-            cls();
-            gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
-            
-            currScreenPtr->drawOriginal();
-            //draw players
-            for (auto& s : players) {
-                s.draw();
-            }
-
-            result = playLevel(currScreenPtr, players, gs, indexScreen);
-
-            if (result == levelStatus::RESTARTFAIL || result == levelStatus::RESTARTKEY) {
-                restart= true; // Break inner loop, trigger outer do-while
-                break;
-            }
-            else if (result == levelStatus::NEXT_LEVEL) {
-                indexScreen++; // Advance to next level
-            }
-        }
-        
-        if (!restart && indexScreen == gs.numOfScreens()) {
-            currScreenPtr = &gs.endScreenByRef();
-            cls();
-            currScreenPtr->drawOriginal();
-
-            // Simple wait for exit
-            while (true) {
-                if (_kbhit() && _getch() == KeyBoardKeys::ESC) break;
-            }
-        }
-
-        if (result == levelStatus::RESTARTFAIL) {
-
-            cls();
-            gotoxy(0, 0);
-            std::cout << "You have lost the game :(" << std::endl;
-            Sleep(1000);
-            std::cout << "better luck next time" << std::endl;
-            Sleep(1000);
-            std::cout << "the game will restart now" << std::endl;
-            Sleep(1000);
-        }
-    } while (restart);
-
 }

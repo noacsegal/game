@@ -39,6 +39,8 @@ private:
 	}
 
 public:
+	Screen(){}
+
 	void createScreenLine(const char* content, int i);
 
 	std::vector<Switch>& screenSwitchesByRef() {
