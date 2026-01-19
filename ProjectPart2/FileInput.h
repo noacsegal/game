@@ -5,7 +5,6 @@
 #include "utillities.h"
 #include <windows.h>
 #include <conio.h>
-#include "player.h"
 
 //reads input from file instead of keyboard
 class FileInput : public Input
@@ -22,7 +21,7 @@ public:
 		if (!inputFile.is_open()) {
 			inputFile.open("adv-world.steps");
 			readNextStep(); // Read the first line immediately
-
+			
 		}
 	}
 	void readNextStep();

@@ -14,7 +14,7 @@ private:
 public:
 	RecordingInput() {}
 	virtual char getInput(long cycle, player* players) override;
-
+	
 	void init() {
 		if (!outputFile.is_open()) {
 			outputFile.open("adv-world.steps");
@@ -29,3 +29,4 @@ public:
 
 	bool neededInput(player* players, char input);
 };
+

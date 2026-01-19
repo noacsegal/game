@@ -13,13 +13,13 @@ int main(int argc, char* argv[]) {
             type = Game::gameType::FILE; // Replay Mode
         }
         else if (strcmp(argv[1], "-save") == 0) {
-
+            
             type = Game::gameType::RECORDING_KEYBOARD; // Record Mode
         }
     }
 
-    game.setGameMode(type);
-    game.startGame();
+	game.setGameMode(type);
+	game.startGame();
 
     return 0;
 }
