@@ -11,16 +11,6 @@ void Screen::createScreenLine(const char* content, int i)
 	strcpy_s(this->originalScreen[i], (MAX_X), content);
 
 }
-//draw the dark spots in a room
-void Screen::drawTile(int x, int y, bool lit) {
-	gotoxy(x, y);
-	if (lit || !isDark) {
-		std::cout << getChar(y, x);
-	}
-	else {
-		std::cout << ' ';
-	}
-}
 
 //draws the entire screen
 void Screen::drawOriginal() const {
@@ -151,4 +141,10 @@ Switch* Screen::specificSwitchRef(int i)
 		return &screenSwitches[i];
 	else
 		return nullptr;
+}
+
+void Screen::setDarkMode(bool dark, int rows, int cols) {
+	this->isDark = dark;
+	this->darkLimitRows = rows;
+	this->darkLimitCols = cols;
 }

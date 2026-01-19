@@ -20,7 +20,8 @@ public:
 	int launchTimer = 0;
 	Direction launchDir = { 0,0 };
 	std::vector<point> springPath;
-	
+
+
 private:
 	// each player has: an array of keys, screen, body and a seperate key to dispose elements
 	char keys[NUM_KEYS];
@@ -41,7 +42,7 @@ public:
 
 	//player functions
 	//once the direction is decided the player moves in this direction until anthor one is chosen
-	bool move(Screen& currScreen, riddle& rid); 
+	bool move(Screen& currScreen, riddle& rid);
 	void draw();
 
 	void draw(char ch);
@@ -111,5 +112,13 @@ public:
 	void changeHeld() {
 		heldBomb = nullptr;
 		heldKey = nullptr;
+	}
+
+	char* getKeys() {
+		return keys;
+	}
+
+	char getDisposeChar() {
+		return dispose;
 	}
 };

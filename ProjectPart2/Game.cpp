@@ -15,7 +15,7 @@ void Game::startGame() {
 
     do {
         GameScreens gs;
-
+        currentCycle = 0;
 
         if (!gs.LoadGameScreens()) break;
 
@@ -33,7 +33,7 @@ void Game::startGame() {
         int indexScreen = 0;
 
         levelStatus result = levelStatus::RESTARTFAIL;
-        
+
         //create two players
         player players[] = {
             player(currScreenPtr->player1posRef(), "wdxas", 'e'),
@@ -63,7 +63,7 @@ void Game::startGame() {
 
             //play this specific level
             result = playLevel(currScreenPtr, players, gs, indexScreen);
-            
+
             //check what happened at the end of the level
             if (result == levelStatus::RESTARTFAIL || result == levelStatus::RESTARTKEY) {
                 restart = true; // Break inner loop, trigger outer do-while
@@ -73,10 +73,11 @@ void Game::startGame() {
             //log when players moved screens
             else if (result == levelStatus::NEXT_LEVEL) {
                 indexScreen++; // Advance to next level
-                logEvent("Player moved to Screen " + std::to_string(indexScreen + 2)); // +2 because index 0 is Screen 1, moving to Screen 2
+                logEvent("Player moved to Screen " + std::to_string(indexScreen + 1)); // +2 because index 0 is Screen 1, moving to Screen 2
 
             }
 
+            //exit output
             else if (result == levelStatus::EXIT) {
                 logEvent("Game exited by user.");
                 cls();
@@ -90,14 +91,14 @@ void Game::startGame() {
             }
         }
 
-
+        //end screen
         if (!restart && indexScreen == gs.numOfScreens()) {
             if (!silentMode) {
                 int score = (players[0].getNumLives() + players[1].getNumLives()) * 100;
                 logEvent("Game Ended. Final Score: " + std::to_string(score));
 
                 if (resultFile.is_open()) resultFile.close();
-                
+
                 currScreenPtr = &gs.endScreenByRef();
                 cls();
                 currScreenPtr->drawOriginal();
@@ -110,9 +111,10 @@ void Game::startGame() {
                     if (_kbhit() && _getch() == KeyBoardKeys::ESC) break;
                 }
             }
-           
+
         }
 
+        //restart if lives ended
         if (result == levelStatus::RESTARTFAIL && !silentMode) {
 
             cls();
@@ -158,12 +160,13 @@ Game::levelStatus Game::playLevel(Screen* currScreenPtr, player* players, GameSc
     while (running) {
 
         // input handle
-        levelStatus inputStatus = handleInput(players, currScreenPtr, gs, cycle);
+        levelStatus inputStatus = handleInput(players, currScreenPtr, gs, currentCycle);
         if (inputStatus == levelStatus::RESTARTKEY || inputStatus == levelStatus::EXIT) return inputStatus;
-        
+
         int livesBeforePlayer1 = players[0].getNumLives();
         int livesBeforePlayer2 = players[1].getNumLives();
-        
+
+
         // moving
         for (int i = 0; i < GameScreens::NUM_OF_PLAYERS; i++) {
             if (!playerFinished[i]) {
@@ -171,6 +174,7 @@ Game::levelStatus Game::playLevel(Screen* currScreenPtr, player* players, GameSc
             }
         }
 
+        //checks if any lives were lost when player moved
         int livesAfterPlayer1 = players[0].getNumLives();
         int livesAfterPlayer2 = players[1].getNumLives();
 
@@ -187,6 +191,7 @@ Game::levelStatus Game::playLevel(Screen* currScreenPtr, player* players, GameSc
         //next level check
         if (playerFinished[0] && playerFinished[1]) return levelStatus::NEXT_LEVEL;
 
+        //if one of the players is out of lives leave
         if (players[0].getNumLives() == 0 || players[1].getNumLives() == 0) {
             return levelStatus::RESTARTFAIL;
         }
@@ -207,65 +212,69 @@ Game::levelStatus Game::playLevel(Screen* currScreenPtr, player* players, GameSc
 //handles input for the level
 Game::levelStatus Game::handleInput(player* players, Screen* currScreenPtr, GameScreens& gs, long cycle)
 {
-    char keyBoard = input->getInput(cycle);
+    char keyBoard = input->getInput(cycle, players);
 
-    if (keyBoard != 0) {
+    //only checks input when in normal game
+    if (!silentMode) {
+        if (keyBoard != 0) {
 
-        if (keyBoard == KeyBoardKeys::ESC) {
+            if (keyBoard == KeyBoardKeys::ESC) {
 
-            gotoxy(0, Screen::MAX_Y);
-            std::cout << "Paused. press h to restart or ESC to exit. press anything else to continue                 ";
-            keyBoard = _getch();
-            if (tolower(keyBoard) == HOME) {
                 gotoxy(0, Screen::MAX_Y);
-                std::cout << "                                                                          ";
-                gs.clearPlayerInventory(currScreenPtr->legendPosByRef());
-                return levelStatus::RESTARTKEY;
-            }
-            if (tolower(keyBoard) == ESC) {
-                return levelStatus::EXIT;
-            }
-            // Clear pause message
-            gotoxy(0, Screen::MAX_Y);
-            std::cout << "                                                                               ";
-        }
-
-        else {
-            // Movement Keys
-            for (int i = 0; i < GameScreens::NUM_OF_PLAYERS; i++) {
-                players[i].keyPressed(std::tolower(keyBoard), *currScreenPtr);
+                std::cout << "Paused. press h to restart or ESC to exit. press anything else to continue                 ";
+                keyBoard = _getch();
+                if (tolower(keyBoard) == HOME) {
+                    gotoxy(0, Screen::MAX_Y);
+                    std::cout << "                                                                          ";
+                    gs.clearPlayerInventory(currScreenPtr->legendPosByRef());
+                    return levelStatus::RESTARTKEY;
+                }
+                if (tolower(keyBoard) == ESC) {
+                    return levelStatus::EXIT;
+                }
+                // Clear pause message
+                gotoxy(0, Screen::MAX_Y);
+                std::cout << "                                                                               ";
             }
 
-            for (int j = 0; j < GameScreens::NUM_OF_PLAYERS; j++) {
+            else {
+                // Movement Keys
+                for (int i = 0; i < GameScreens::NUM_OF_PLAYERS; i++) {
+                    players[i].keyPressed(std::tolower(keyBoard), *currScreenPtr);
+                }
 
-                player& p = players[j];
+                for (int j = 0; j < GameScreens::NUM_OF_PLAYERS; j++) {
 
-                //if we pressed the char to get rid of something and we're holding something
-                if (keyBoard == p.getDisposeChar() && p.getItemType() != ItemType::EMPTY) {
+                    player& p = players[j];
 
-                    if (p.getItemType() == ItemType::KEY) {
-                        p.changeKey()->getPlaceP().changePosition(p.getBody());//change position of key
-                        p.changeKey()->changeTaken(false); //key knows it isnt being held
-                        p.updateKey(nullptr); //player doesnt have key
-                        p.updateItemType(ItemType::EMPTY); // the player knows it isn't holding an item
-                    }
+                    //if we pressed the char to get rid of something and we're holding something
+                    if (keyBoard == p.getDisposeChar() && p.getItemType() != ItemType::EMPTY) {
 
-                    else if (p.getItemType() == ItemType::BOMB) {
-                        p.changeBomb()->turnOn();
-                        p.changeBomb()->getPlaceP().changePosition(p.getBody());//change position of bomb
-                        p.updateBomb(nullptr);
-                        p.updateItemType(ItemType::EMPTY);
-                    }
+                        if (p.getItemType() == ItemType::KEY) {
+                            p.changeKey()->getPlaceP().changePosition(p.getBody());//change position of key
+                            p.changeKey()->changeTaken(false); //key knows it isnt being held
+                            p.updateKey(nullptr); //player doesnt have key
+                            p.updateItemType(ItemType::EMPTY); // the player knows it isn't holding an item
+                        }
 
-                    else if (p.getItemType() == ItemType::TORCH) {
-                        currScreenPtr->setCharCurrent(p.getBody(), player::TORCH);
-                        p.updateItemType(ItemType::EMPTY);
-                        p.getBody().draw(player::TORCH);
+                        else if (p.getItemType() == ItemType::BOMB) {
+                            p.changeBomb()->turnOn();
+                            p.changeBomb()->getPlaceP().changePosition(p.getBody());//change position of bomb
+                            p.updateBomb(nullptr);
+                            p.updateItemType(ItemType::EMPTY);
+                        }
+
+                        else if (p.getItemType() == ItemType::TORCH) {
+                            currScreenPtr->setCharCurrent(p.getBody(), player::TORCH);
+                            p.updateItemType(ItemType::EMPTY);
+                            p.getBody().draw(player::TORCH);
+                        }
                     }
                 }
             }
         }
     }
+
     return levelStatus::NEXT_LEVEL; // Means "Continue Playing", not actually next level yet
 }
 
@@ -374,9 +383,9 @@ void Game::handlePlayerMove(player& s, Screen* currScreenPtr, GameScreens& gs, b
 //handles all the redrawing needed
 void Game::drawLevel(Screen* currScreenPtr, player* players, int indexScreen, bool* playerFinished)
 {
-    bool isScreen1 = (indexScreen == 0);
-    int darkMinX = 0, darkMaxX = 21;
-    int darkMinY = 0, darkMaxY = 9;
+    bool isDarkRoom = currScreenPtr->getIsDark();
+    int darkLimitY = currScreenPtr->getDarkRows();
+    int darkLimitX = currScreenPtr->getDarkCols();
 
     // 1. Find Torch Position
     bool playerHasTorch = false;
@@ -391,43 +400,47 @@ void Game::drawLevel(Screen* currScreenPtr, player* players, int indexScreen, bo
 
     // 2. Define Visibility Logic 
     auto isVisible = [&](int x, int y) {
-        if (!isScreen1) return true;
-        if (x < darkMinX || x > darkMaxX || y < darkMinY || y > darkMaxY) return true;
-        int dx = x - torchPos.getX();
-        int dy = y - torchPos.getY();
-        return (dx * dx + dy * dy) <= 25; // Radius 5
+        if (!isDarkRoom) return true;
+        if (x >= darkLimitX || y >= darkLimitY) return true;
+        if (playerHasTorch) {
+            int dx = x - torchPos.getX();
+            int dy = y - torchPos.getY();
+            return (dx * dx + dy * dy) <= 25; // Radius 5
+        }
+        //if the player is in the dark space wuthout a torch
+        return false;
         };
 
     // 3. Draw Darkness / Reveal Map
-    if (isScreen1) {
-        for (int y = darkMinY; y <= darkMaxY; y++) {
-            for (int x = darkMinX; x <= darkMaxX; x++) {
-                gotoxy(x, y);
-                if (isVisible(x, y)) std::cout << currScreenPtr->getChar(y, x);
-                else std::cout << ' ';
-            }
-        }
-    }
-
-    // 4. Draw Unheld Torches in the dark
-    if (!playerHasTorch) {
-        for (int y = darkMinY; y <= darkMaxY; y++) {
-            for (int x = darkMinX; x <= darkMaxX; x++) {
-                if (currScreenPtr->getChar(y, x) == player::TORCH) {
-                    point(x, y, Direction::directions[Direction::STAY], player::TORCH).draw();
+    if (isDarkRoom) {
+        for (int y = 0; y < darkLimitY; y++) {
+            for (int x = 0; x < darkLimitX; x++) {
+                point p(x, y, Direction::directions[Direction::STAY], ' ');
+                if (isVisible(x, y)) {
+                    p.draw(currScreenPtr->getChar(y, x));
+                }
+                else{
+                    if (currScreenPtr->getChar(y, x) == player::TORCH) {
+                        p.draw(player::TORCH);
+                    }
+                    else {
+                        p.draw(' ');
+                    }
                 }
             }
         }
     }
 
-    // 5. Draw Game Objects (Only if Visible)
+    // 4. Draw Game Objects (Only if Visible)
     auto& keys = currScreenPtr->screenKeysByRef();
     for (auto& k : keys) {
         if (isVisible(k.getPlaceP().getX(), k.getPlaceP().getY())) k.draw();
     }
 
     auto& switches = currScreenPtr->screenSwitchesByRef();
-    for (auto& sw : switches) sw.draw();
+    for (auto& sw : switches) {
+        if (isVisible(sw.getPlace().getX(), sw.getPlace().getY())) sw.draw();
+    }
 
     auto& doors = currScreenPtr->screenDoorByRef();
     for (const auto& d : doors) {
@@ -440,32 +453,41 @@ void Game::drawLevel(Screen* currScreenPtr, player* players, int indexScreen, bo
             b.getPlaceP().draw();
         }
     }
-    //isVisible(players[j].getBody().getX(), players[j].getBody().getY()) &&
     //  Draw Players (Only if Visible)
     for (int j = 0; j < GameScreens::NUM_OF_PLAYERS; j++) {
         if (!playerFinished[j]) {
-            players[j].draw();
+            if (isVisible(players[j].getBody().getX(), players[j].getBody().getY())) {
+                players[j].draw();
+            }
         }
     }
 }
 
-
-void Game::setGameMode(bool isLoadMode)
+//checks what kind of game we are playing
+void Game::setGameMode(gameType type)
 {
-    silentMode = isLoadMode;
-
-    if (isLoadMode) {
+    //game that reads input from file
+    if (type == gameType::FILE) {
+        silentMode = true;
         input = &filePlay;
         filePlay.init();
-        sleepTime = 10; 
+        sleepTime = 10;
+
     }
-    else {
+    //game that writes input to file
+    else if (type == gameType::RECORDING_KEYBOARD) {
         input = &recordingPlay;
         recordingPlay.init();
         sleepTime = 50;
         resultFile.open("adv-world.result");
     }
+    //reguler game like part 2
+    else {
+        sleepTime = 50;
+        input = &keyboardPlay;
+    }
 }
+
 
 void Game::logRiddleEvent(std::string riddle, std::string answer, bool isCorrect)
 {

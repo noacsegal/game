@@ -1,7 +1,13 @@
 #pragma once
 #include "Input.h"
 #include <fstream>
+#include <iostream>
+#include "utillities.h"
+#include <windows.h>
+#include <conio.h>
+#include "player.h"
 
+//reads input from file instead of keyboard
 class FileInput : public Input
 {
 private:
@@ -16,14 +22,14 @@ public:
 		if (!inputFile.is_open()) {
 			inputFile.open("adv-world.steps");
 			readNextStep(); // Read the first line immediately
+
 		}
 	}
 	void readNextStep();
 
-	virtual char getInput(long currentCycle) override;
+	virtual char getInput(long currentCycle, player* players) override;
 
 	~FileInput() {
 		if (inputFile.is_open()) inputFile.close();
 	}
 };
-

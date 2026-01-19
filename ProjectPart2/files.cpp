@@ -141,6 +141,22 @@ bool files::createMetaData(std::ifstream& screenFile, Screen& screenToFill)
 				d->addSwitchToVector(sw);
 			}
 		}
+	
+		if (word == "DARK") {
+			screenFile.clear();
+			screenFile >> std::ws;
+			int nextChar = screenFile.peek();
+			if (nextChar != EOF && std::isdigit(nextChar)) {
+				int rows = 0, cols = 0;
+				if (screenFile >> rows >> cols) {
+					screenToFill.setDarkMode(true, rows, cols);
+				}
+				else {
+					screenFile.clear();
+					screenToFill.setDarkMode(true, Screen::MAX_Y, Screen::MAX_X);
+				}
+			}
+		}
 		if (word == "L") {
 			point p = { 0, 26 };
 			screenToFill.updateLegendPos(p);

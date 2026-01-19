@@ -29,6 +29,8 @@ private:
 	point startPosPlayer2 = { -1,-1, Direction::directions[Direction::STAY], ' ' };
 	point legendPos = { -1,-1, Direction::directions[Direction::STAY], ' ' };
 	bool isDark = false;
+	int darkLimitRows;
+	int darkLimitCols;
 
 	//return the char from a specific point of the  current screen
 	char charAtCurrent(const point& p) const {
@@ -139,8 +141,17 @@ public:
 	}
 
 	void drawCurrent() const;
-	void setDarkness(bool status) { isDark = status; }
-	bool getIsDark() const { return isDark; }
-	void drawTile(int x, int y, bool lit);
+
+	void setDarkMode(bool dark, int rows, int cols);
+
+	bool getIsDark() const {
+		return isDark;
+	}
+	int getDarkRows() const {
+		return darkLimitRows;
+	}
+	int getDarkCols() const {
+		return darkLimitCols;
+	}
 
 };
