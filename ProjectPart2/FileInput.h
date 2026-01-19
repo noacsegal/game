@@ -2,6 +2,7 @@
 #include "Input.h"
 #include <fstream>
 
+//reads input from file instead of keyboard
 class FileInput : public Input
 {
 private:
@@ -20,7 +21,7 @@ public:
 	}
 	void readNextStep();
 
-	virtual char getInput(long currentCycle) override;
+	virtual char getInput(long currentCycle, player* players) override;
 
 	~FileInput() {
 		if (inputFile.is_open()) inputFile.close();

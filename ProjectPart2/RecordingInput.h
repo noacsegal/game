@@ -2,8 +2,10 @@
 #include "KeyboardInput.h"
 #include <fstream>
 #include <iostream>
+#include "player.h"
 
-
+//writes all input into a file 
+// format: cycle key
 class RecordingInput : public keyBoardInput
 {
 private:
@@ -11,7 +13,7 @@ private:
 
 public:
 	RecordingInput() {}
-	virtual char getInput(long cycle) override;
+	virtual char getInput(long cycle, player* players) override;
 	
 	void init() {
 		if (!outputFile.is_open()) {
@@ -24,5 +26,7 @@ public:
 			outputFile.close();
 		}
 	}
+
+	bool neededInput(player* players, char input);
 };
 

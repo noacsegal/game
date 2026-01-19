@@ -17,12 +17,14 @@ class Game
 	int const radiusSq = 25; //the radius of the torch is 5
 
 	//add
-	Input* input;
-	keyBoardInput keyboardPlay;
-	RecordingInput recordingPlay;
-	FileInput filePlay;
-	int sleepTime = 50;
-	bool silentMode = false;
+	Input* input; //parent class
+	keyBoardInput keyboardPlay; //normal play
+	RecordingInput recordingPlay; //saves all input to file steps
+	FileInput filePlay; //takes input from file and not keyboard
+	int sleepTime = 50; 
+	bool silentMode = false; // check if start and end screen are needed
+	std::ofstream resultFile; //saves big events
+	long currentCycle = 0; //tracks game timing for files
 
 public:
 	Game() {
@@ -51,4 +53,12 @@ public:
 	
 	void setGameMode(bool isLoadMode);
 
+	//add improtant things to the result file
+	void logEvent(std::string message) {
+		if (resultFile.is_open()) {
+			resultFile << currentCycle << ": " << message << std::endl;
+		}
+	}
+
+	void logRiddleEvent(std::string riddle, std::string answer, bool isCorrect);
 };

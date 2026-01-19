@@ -20,6 +20,7 @@ public:
 	int launchTimer = 0;
 	Direction launchDir = { 0,0 };
 	std::vector<point> springPath;
+
 	
 private:
 	// each player has: an array of keys, screen, body and a seperate key to dispose elements
@@ -111,5 +112,14 @@ public:
 	void changeHeld() {
 		heldBomb = nullptr;
 		heldKey = nullptr;
+	}
+
+	//added
+	char* getKeys(){
+		return keys;
+	}
+
+	char getDisposeChar() {
+		return dispose;
 	}
 };

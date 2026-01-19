@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
 	if (argc > 1 && strcmp(argv[1], "-load") == 0) {
 		loadMode = true;
 	}
-	game.setGameMode(true);
+	game.setGameMode(false);
 	game.startGame();
 
 	return 0;
