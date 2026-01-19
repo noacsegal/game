@@ -1,6 +1,10 @@
 #pragma once
 #include "Input.h"
 #include <fstream>
+#include <iostream>
+#include "utillities.h"
+#include <windows.h>
+#include <conio.h>
 
 //reads input from file instead of keyboard
 class FileInput : public Input
@@ -17,6 +21,7 @@ public:
 		if (!inputFile.is_open()) {
 			inputFile.open("adv-world.steps");
 			readNextStep(); // Read the first line immediately
+			
 		}
 	}
 	void readNextStep();

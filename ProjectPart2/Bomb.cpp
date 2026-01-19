@@ -13,9 +13,8 @@ void Bomb::goOff(player& p1, player& p2, Screen& currScreen)
 	if (x < 1) x = 1;
 	if (x_end > Screen::MAX_X - 2) x_end = Screen::MAX_X - 2;
 
-	// Fix Y bounds
 	if (y < 1) y = 1;
-	if (y_end > Screen::MAX_Y - 2) y_end = Screen::MAX_Y - 2;
+	if (y_end > Screen::MAX_Y - 1) y_end = Screen::MAX_Y - 1;
 
 	int save_y = y;
 	//erases everything around the bomb

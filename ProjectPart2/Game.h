@@ -39,6 +39,12 @@ public:
 		EXIT
 	};
 
+	enum class gameType {
+		KEYBOARD,
+		RECORDING_KEYBOARD,
+		FILE
+	};
+
 	void startGame();
 	void startingScreen();
 
@@ -51,7 +57,7 @@ public:
 
 	levelStatus playLevel(Screen* currScreen, player* players, GameScreens& gs, int indexScreen);
 	
-	void setGameMode(bool isLoadMode);
+	void setGameMode(gameType type);
 
 	//add improtant things to the result file
 	void logEvent(std::string message) {

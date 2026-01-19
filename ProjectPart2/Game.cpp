@@ -15,7 +15,7 @@ void Game::startGame() {
 
     do {
         GameScreens gs;
-
+        currentCycle = 0;
 
         if (!gs.LoadGameScreens()) break;
 
@@ -73,7 +73,7 @@ void Game::startGame() {
             //log when players moved screens
             else if (result == levelStatus::NEXT_LEVEL) {
                 indexScreen++; // Advance to next level
-                logEvent("Player moved to Screen " + std::to_string(indexScreen + 2)); // +2 because index 0 is Screen 1, moving to Screen 2
+                logEvent("Player moved to Screen " + std::to_string(indexScreen + 1)); // +2 because index 0 is Screen 1, moving to Screen 2
 
             }
 
@@ -165,6 +165,7 @@ Game::levelStatus Game::playLevel(Screen* currScreenPtr, player* players, GameSc
         
         int livesBeforePlayer1 = players[0].getNumLives();
         int livesBeforePlayer2 = players[1].getNumLives();
+
         
         // moving
         for (int i = 0; i < GameScreens::NUM_OF_PLAYERS; i++) {
@@ -458,20 +459,27 @@ void Game::drawLevel(Screen* currScreenPtr, player* players, int indexScreen, bo
 }
 
 //checks what kind of game we are playing
-void Game::setGameMode(bool isLoadMode)
+void Game::setGameMode(gameType type)
 {
-    silentMode = isLoadMode;
-
-    if (isLoadMode) {
+    //game that reads input from file
+    if (type == gameType::FILE) {
+        silentMode = true;
         input = &filePlay;
         filePlay.init();
         sleepTime = 10; 
+
     }
-    else {
+    //game that writes input to file
+    else if (type == gameType::RECORDING_KEYBOARD){
         input = &recordingPlay;
         recordingPlay.init();
         sleepTime = 50;
         resultFile.open("adv-world.result");
+    }
+    //reguler game like part 2
+    else {
+        sleepTime = 50;
+        input = &keyboardPlay;
     }
 }
 
