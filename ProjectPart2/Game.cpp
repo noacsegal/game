@@ -24,16 +24,19 @@ void Game::startGame() {
 
         Screen* currScreenPtr = &gs.startScreenByRef();
 
+        levelStatus result = levelStatus::RESTARTFAIL;
+
 
         //waits to start the game
         if (!silentMode) {
-            currScreenPtr->drawOriginal();
-            startingScreen();
+            if (!startingScreen(currScreenPtr)) {
+                return;
+            }
 
         }
+
         int indexScreen = 0;
 
-        levelStatus result = levelStatus::RESTARTFAIL;
 
         //create two players
         player players[] = {
@@ -136,19 +139,38 @@ void Game::startGame() {
 
 }
 
-//prints the first screen and waits to start
-void Game::startingScreen() {
-    bool flag = true;
-    while (flag) {
-        if (_kbhit()) {
-            char keyBoard = _getch();
-            if (keyBoard == KeyBoardKeys::SPACE) {
-                cls();
-                flag = false;
+//prints the first screen and waits to start - true if we are playing
+bool Game::startingScreen(Screen* currScreenPtr)
+{
+    cls();
+    std::cout << "Press 1 to start a new game" << std::endl;
+    std::cout << "Press 8 to present instructions and keys" << std::endl;
+    std::cout << "Press 9 to exit" << std::endl;
+
+    int answer; 
+    std::cin >> answer;
+    
+    if (answer == 1) return true;
+
+    if (answer == 8) {
+        cls();
+        currScreenPtr->drawOriginal();
+        bool flag = true;
+        while (flag) {
+            if (_kbhit()) {
+                char keyBoard = _getch();
+                if (keyBoard == KeyBoardKeys::SPACE) {
+                    cls();
+                    flag = false;
+                }
             }
+            Sleep(10);
         }
-        Sleep(10);
+        return true;
     }
+
+    //if we havn't left yet then answer is 9
+    return false;
 
 }
 

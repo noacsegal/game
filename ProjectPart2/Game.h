@@ -40,7 +40,7 @@ public:
 	};
 
 	void startGame();
-	void startingScreen();
+	bool startingScreen(Screen* currScreenPtr);
 
 	//add
 	void handlePlayerMove(player& p, Screen* currScreenPtr, GameScreens& gs, bool& finished, player* players);
