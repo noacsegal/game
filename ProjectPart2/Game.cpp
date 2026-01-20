@@ -149,7 +149,8 @@ bool Game::startingScreen(Screen* currScreenPtr)
 
     int answer; 
     std::cin >> answer;
-    
+    std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
+
     if (answer == 1) return true;
 
     if (answer == 8) {
