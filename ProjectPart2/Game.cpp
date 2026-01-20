@@ -5,6 +5,7 @@
 #include <iostream>
 #include <windows.h>
 #include <conio.h>
+#include "utillities.h"
 
 //outer game function
 void Game::startGame() {
@@ -40,22 +41,26 @@ void Game::startGame() {
             player(currScreenPtr->player2posRef(), "ilmjk", 'o')
         };
 
+        players[0].changeBodyChar('$');
+        players[1].changeBodyChar('&');
+
         //loop all screens
         while (indexScreen < gs.numOfScreens()) {
 
             //load screen
             currScreenPtr = &gs.ScreeniByRef(indexScreen);
 
-            players[0] = player(currScreenPtr->player1posRef(), "wdxas", 'e');
-            players[1] = player(currScreenPtr->player2posRef(), "ilmjk", 'o');
+            players[0].changeHeld();
+            players[1].changeHeld();
 
-            players[0].changeBodyChar('$');
-            players[1].changeBodyChar('&');
+            players[0].moveScreen(currScreenPtr->player1posRef());
+            players[1].moveScreen(currScreenPtr->player2posRef());
 
             cls();
             gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
 
             currScreenPtr->drawOriginal();
+
             //draw players
             for (auto& s : players) {
                 s.draw();
@@ -73,7 +78,7 @@ void Game::startGame() {
             //log when players moved screens
             else if (result == levelStatus::NEXT_LEVEL) {
                 indexScreen++; // Advance to next level
-                logEvent("Player moved to Screen " + std::to_string(indexScreen + 1)); // +2 because index 0 is Screen 1, moving to Screen 2
+                logEvent("Players moved to Screen " + std::to_string(indexScreen + 1)); // +2 because index 0 is Screen 1, moving to Screen 2
 
             }
 
@@ -173,18 +178,7 @@ Game::levelStatus Game::playLevel(Screen* currScreenPtr, player* players, GameSc
                 handlePlayerMove(players[i], currScreenPtr, gs, playerFinished[i], players);
             }
         }
-
-        //checks if any lives were lost when player moved
-        int livesAfterPlayer1 = players[0].getNumLives();
-        int livesAfterPlayer2 = players[1].getNumLives();
-
-        if (livesAfterPlayer1 < livesBeforePlayer1) {
-            logEvent("Player 1 lost a life");
-        }
-
-        if (livesAfterPlayer2 < livesBeforePlayer2) {
-            logEvent("Player 2 lost a life");
-        }
+       
         // draw whats needed
         drawLevel(currScreenPtr, players, indexScreen, playerFinished);
 
@@ -201,6 +195,17 @@ Game::levelStatus Game::playLevel(Screen* currScreenPtr, player* players, GameSc
             if (b.isTicking()) b.countdown(players[0], players[1], *currScreenPtr);
         }
 
+        //checks if any lives were lost when player moved
+        int livesAfterPlayer1 = players[0].getNumLives();
+        int livesAfterPlayer2 = players[1].getNumLives();
+
+        if (livesAfterPlayer1 < livesBeforePlayer1) {
+            logEvent("Player 1 lost a life");
+        }
+
+        if (livesAfterPlayer2 < livesBeforePlayer2) {
+            logEvent("Player 2 lost a life");
+        }
         Sleep(sleepTime);
         currentCycle++;
     }
@@ -215,9 +220,10 @@ Game::levelStatus Game::handleInput(player* players, Screen* currScreenPtr, Game
     char keyBoard = input->getInput(cycle, players);
 
     //only checks input when in normal game
-    if (!silentMode) {
-        if (keyBoard != 0) {
+    if (keyBoard != 0) {
 
+        //can only pause and exit when keyboard game is played
+        if (!silentMode) {
             if (keyBoard == KeyBoardKeys::ESC) {
 
                 gotoxy(0, Screen::MAX_Y);
@@ -236,44 +242,44 @@ Game::levelStatus Game::handleInput(player* players, Screen* currScreenPtr, Game
                 gotoxy(0, Screen::MAX_Y);
                 std::cout << "                                                                               ";
             }
+        }
+        
+        // Movement Keys
+        for (int i = 0; i < GameScreens::NUM_OF_PLAYERS; i++) {
+            players[i].keyPressed(std::tolower(keyBoard), *currScreenPtr);
+        }
 
-            else {
-                // Movement Keys
-                for (int i = 0; i < GameScreens::NUM_OF_PLAYERS; i++) {
-                    players[i].keyPressed(std::tolower(keyBoard), *currScreenPtr);
+        for (int j = 0; j < GameScreens::NUM_OF_PLAYERS; j++) {
+
+            player& p = players[j];
+
+            //if we pressed the char to get rid of something and we're holding something
+            if (keyBoard == p.getDisposeChar() && p.getItemType() != ItemType::EMPTY) {
+
+                if (p.getItemType() == ItemType::KEY) {
+                    p.changeKey()->getPlaceP().changePosition(p.getBody());//change position of key
+                    p.changeKey()->changeTaken(false); //key knows it isnt being held
+                    p.updateKey(nullptr); //player doesnt have key
+                    p.updateItemType(ItemType::EMPTY); // the player knows it isn't holding an item
                 }
 
-                for (int j = 0; j < GameScreens::NUM_OF_PLAYERS; j++) {
+                else if (p.getItemType() == ItemType::BOMB) {
+                    p.changeBomb()->turnOn();
+                    p.changeBomb()->getPlaceP().changePosition(p.getBody());//change position of bomb
+                    p.updateBomb(nullptr);
+                    p.updateItemType(ItemType::EMPTY);
+                }
 
-                    player& p = players[j];
-
-                    //if we pressed the char to get rid of something and we're holding something
-                    if (keyBoard == p.getDisposeChar() && p.getItemType() != ItemType::EMPTY) {
-
-                        if (p.getItemType() == ItemType::KEY) {
-                            p.changeKey()->getPlaceP().changePosition(p.getBody());//change position of key
-                            p.changeKey()->changeTaken(false); //key knows it isnt being held
-                            p.updateKey(nullptr); //player doesnt have key
-                            p.updateItemType(ItemType::EMPTY); // the player knows it isn't holding an item
-                        }
-
-                        else if (p.getItemType() == ItemType::BOMB) {
-                            p.changeBomb()->turnOn();
-                            p.changeBomb()->getPlaceP().changePosition(p.getBody());//change position of bomb
-                            p.updateBomb(nullptr);
-                            p.updateItemType(ItemType::EMPTY);
-                        }
-
-                        else if (p.getItemType() == ItemType::TORCH) {
-                            currScreenPtr->setCharCurrent(p.getBody(), player::TORCH);
-                            p.updateItemType(ItemType::EMPTY);
-                            p.getBody().draw(player::TORCH);
-                        }
-                    }
+                else if (p.getItemType() == ItemType::TORCH) {
+                    currScreenPtr->setCharCurrent(p.getBody(), player::TORCH);
+                    p.updateItemType(ItemType::EMPTY);
+                    p.getBody().draw(player::TORCH);
                 }
             }
         }
+        
     }
+    
 
     return levelStatus::NEXT_LEVEL; // Means "Continue Playing", not actually next level yet
 }
@@ -324,7 +330,16 @@ void Game::handlePlayerMove(player& s, Screen* currScreenPtr, GameScreens& gs, b
     if (!hitDoor) {
         s.draw();
 
-        if (s.move(*currScreenPtr, gs.riddleByRef())) {
+        char itemAtDest = currScreenPtr->getChar(temp);
+        
+        if (itemAtDest == player::TORCH) {
+            if (s.getItemType() == ItemType::EMPTY) {
+                s.updateItemType(ItemType::TORCH);  
+               currScreenPtr->setCharCurrent(temp, ' ');
+            }
+        }
+
+        if (s.move(*currScreenPtr, gs.riddleByRef(), *this)) {
 
             gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
 
@@ -481,6 +496,7 @@ void Game::setGameMode(gameType type)
         sleepTime = 50;
         resultFile.open("adv-world.result");
     }
+
     //reguler game like part 2
     else {
         sleepTime = 50;

@@ -13,6 +13,7 @@ private:
 	std::ifstream inputFile;
 	long nextStepCycle = -1;
 	char nextStepKey = 0;
+	std::string nextStepString = "";
 
 public:
 	FileInput() {}
@@ -31,4 +32,6 @@ public:
 	~FileInput() {
 		if (inputFile.is_open()) inputFile.close();
 	}
+
+	virtual std::string getString(long cycle) override;
 };

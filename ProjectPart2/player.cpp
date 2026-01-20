@@ -13,6 +13,7 @@
 #include "Spring.h"
 #include "Obstacle.h"
 #include "Torch.h"
+#include "Game.h"
 
 //draw body character
 void player::draw() {
@@ -25,7 +26,7 @@ void player::draw(char ch) {
 }
 
 
-bool player::move(Screen& currScreen, riddle& rid) {
+bool player::move(Screen& currScreen, riddle& rid, Game& game) {
 	point target_pos = body;
 	target_pos.move();
 	char charAtTarget = currScreen.getChar(target_pos);
@@ -50,9 +51,8 @@ bool player::move(Screen& currScreen, riddle& rid) {
 		break;
 
 	case riddle::RIDDLE:
-		if (!rid.answerRiddle(*this, currScreen)) {
+		if (!rid.answerRiddle(*this, currScreen, game)) {
 			lives--;
-			heldType = ItemType::EMPTY;
 		}
 		body.move();
 		currScreen.setCharCurrent(body, ' ');
@@ -115,6 +115,7 @@ void player::keyPressed(char ch, Screen& currScreen) {
 			return;
 		}
 	}
+
 	if (launchTimer > 0) {
 		if (newDir.dirx == -launchDir.dirx && newDir.diry == -launchDir.diry) {
 			return;
@@ -128,6 +129,7 @@ void player::keyPressed(char ch, Screen& currScreen) {
 		}
 		return;
 	}
+
 	if (std::tolower(ch) == std::tolower(dispose)) {
 		if (heldType != ItemType::EMPTY) {
 			char charToDrop = ' ';

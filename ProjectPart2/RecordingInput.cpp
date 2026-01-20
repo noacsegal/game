@@ -20,7 +20,7 @@ char RecordingInput::getInput(long cycle, player* players)
 bool RecordingInput::neededInput(player* players, char input)
 {
 	for (int i = 0; i < GameScreens::NUM_OF_PLAYERS; i++) {
-		player p = players[i];
+		player& p = players[i];
 
 		char* keys = p.getKeys();
 		char disposeChar = p.getDisposeChar();
@@ -37,4 +37,16 @@ bool RecordingInput::neededInput(player* players, char input)
 		}
 	}
 	return false;
+}
+
+std::string RecordingInput::getString(long cycle)
+{
+	//Get input from keyboard - for riddles
+	std::string s = keyBoardInput::getString(cycle);
+
+	// Save it to file with special format: [Cycle] [~] [String]
+	if (outputFile.is_open()) {
+		outputFile << cycle << " ~" << s << std::endl;
+	}
+	return s;
 }

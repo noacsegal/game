@@ -3,7 +3,7 @@
 #include <cctype>
 #include <windows.h>
 #include <algorithm>
-
+#include "Game.h"
 
 // turn the input to lower case (string)
 void riddle::toLower(std::string& s)
@@ -13,14 +13,29 @@ void riddle::toLower(std::string& s)
 }
 
 //print the riddle, recive the answer and return if true or false
-bool riddle::ask_riddle() {
+bool riddle::ask_riddle(Game& game) {
 
 	cls();
 	if (numRid < riddles.size()) {
 		std::cout << riddles[numRid] << std::endl;
-		std::string input;
-		std::getline(std::cin, input);
+
+		//read line from file or keyboard
+		std::string input = game.getAnswerInput();
+
+		//trims spaces
+		if (!input.empty() && input[0] == ' ') {
+			input.erase(0, 1);
+		}
+
+		//prints the answer to the screen in silent mode
+		if (game.isSilentMode()) {
+			Sleep(500);
+			std::cout << input << std::endl;
+			Sleep(500);
+		}
+
 		toLower(input);
+		game.logRiddleEvent(riddles[numRid], input, (input == answers[numRid]));
 		return (input == answers[numRid]);
 
 	}
@@ -34,7 +49,7 @@ void riddle::addRiddle(std::string rid, std::string ans)
 	trys.push_back(3);
 }
 
-bool riddle::answerRiddle(player& p, Screen& currscreen)
+bool riddle::answerRiddle(player& p, Screen& currscreen, Game& game)
 {
 	bool success = false;
 	int riddle_trys_left = p.RiddleTrysByRef();
@@ -43,7 +58,7 @@ bool riddle::answerRiddle(player& p, Screen& currscreen)
 		cls();
 		std::cout << "you have " << riddle_trys_left << " trys" << std::endl;
 		//ask the question and resive true if the answer is correct and false otherwise
-		bool result = ask_riddle();
+		bool result = ask_riddle(game);
 		cls();
 
 		if (result) {

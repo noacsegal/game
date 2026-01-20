@@ -7,6 +7,7 @@
 #include "utillities.h"
 
 class riddle;
+class Game;
 
 class player
 {
@@ -42,7 +43,7 @@ public:
 
 	//player functions
 	//once the direction is decided the player moves in this direction until anthor one is chosen
-	bool move(Screen& currScreen, riddle& rid);
+	bool move(Screen& currScreen, riddle& rid, Game& game);
 	void draw();
 
 	void draw(char ch);
@@ -110,6 +111,7 @@ public:
 	}
 
 	void changeHeld() {
+		heldType = ItemType::EMPTY;
 		heldBomb = nullptr;
 		heldKey = nullptr;
 	}
@@ -121,4 +123,5 @@ public:
 	char getDisposeChar() {
 		return dispose;
 	}
+
 };

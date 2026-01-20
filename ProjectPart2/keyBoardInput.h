@@ -15,4 +15,11 @@ public:
         }
         return 0;
     }
+
+    virtual std::string getString(long cycle) override {
+        std::string s;
+        std::getline(std::cin, s);
+        return s;
+    }
+
 };

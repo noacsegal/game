@@ -3,6 +3,7 @@
 #include "Screen.h"
 
 void Torch::handleCollision(player& p, point& body, Screen& currScreen, const point& target_pos) {
+    
     if (p.getItemType() == ItemType::EMPTY) {
         // if the player is not holding something he pick up the torch
         p.updateItemType(ItemType::TORCH);
@@ -12,6 +13,7 @@ void Torch::handleCollision(player& p, point& body, Screen& currScreen, const po
         body.move();    
         body.draw();
     }
+
     else {
         // if the player is holding something he can't pick up the torch
         

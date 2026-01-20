@@ -13,6 +13,7 @@ private:
 
 public:
 	RecordingInput() {}
+
 	virtual char getInput(long cycle, player* players) override;
 	
 	void init() {
@@ -28,5 +29,7 @@ public:
 	}
 
 	bool neededInput(player* players, char input);
+
+	virtual std::string getString(long cycle) override;
 };
 

@@ -3,6 +3,8 @@
 #include "screen.h"
 #include "utillities.h"
 
+class Game;
+
 class riddle
 {
 	std::vector<std::string> riddles;
@@ -16,11 +18,11 @@ public:
 
 	static constexpr char RIDDLE = '?';
 
-	bool ask_riddle();
+	bool ask_riddle(Game& game);
 
 	void addRiddle(std::string rid, std::string ans);
 
-	bool answerRiddle(player& p1, Screen& currscreen);
+	bool answerRiddle(player& p1, Screen& currscreen, Game& game);
 
 
 };

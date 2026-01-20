@@ -61,4 +61,12 @@ public:
 	}
 
 	void logRiddleEvent(std::string riddle, std::string answer, bool isCorrect);
+
+	std::string getAnswerInput() {
+		return input->getString(currentCycle);
+	}
+
+	bool isSilentMode() const{
+		return silentMode;
+	}
 };
