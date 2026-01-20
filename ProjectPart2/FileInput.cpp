@@ -21,6 +21,10 @@ char FileInput::getInput(long currentCycle, player* players)
 {
 	//finds when to read the next key
 	if (nextStepCycle != -1 && currentCycle == nextStepCycle) {
+		if (nextStepKey == '~') {
+			return 0;
+		}
+		
 		char keyReturn = nextStepKey;
 		readNextStep();
 		return keyReturn;

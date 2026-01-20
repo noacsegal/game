@@ -111,20 +111,21 @@ void Game::startGame() {
         }
 
         //end screen
-        if (!silentMode && !restart && indexScreen == gs.numOfScreens()) {
+        if (!restart && indexScreen == gs.numOfScreens()) {
+            int score = (players[0].getNumLives() + players[1].getNumLives()) * 100;
+            logEvent("Game Ended. Final Score: " + std::to_string(score));
+
+            if (resultFile.is_open()) resultFile.close();
+
+            currScreenPtr = &gs.endScreenByRef();
+            cls();
+            currScreenPtr->drawOriginal();
+
+            gotoxy(25, 13);
+            std::cout << "The Final Score: " << score;
+
             if (!loadMode) {
-                int score = (players[0].getNumLives() + players[1].getNumLives()) * 100;
-                logEvent("Game Ended. Final Score: " + std::to_string(score));
-
-                if (resultFile.is_open()) resultFile.close();
-
-                currScreenPtr = &gs.endScreenByRef();
-                cls();
-                currScreenPtr->drawOriginal();
-
-                gotoxy(30, 13);
-                std::cout << "The Final Score: " << score;
-
+                
                 // Simple wait for exit
                 while (true) {
                     if (_kbhit() && _getch() == KeyBoardKeys::ESC) break;
@@ -575,6 +576,22 @@ void Game::logRiddleEvent(std::string riddle, std::string answer, bool isCorrect
         }
 }
 
+
+// Helper to check if a line starts with a timestamp (e.g., "88: ")
+bool isStartOfEvent(const std::string& line) {
+    if (line.empty() || !isdigit(line[0])) return false;
+
+    // Check if there is a ':' shortly after the number
+    size_t colonPos = line.find(':');
+    if (colonPos == std::string::npos) return false;
+
+    // Ensure everything before the colon is a number
+    for (size_t i = 0; i < colonPos; ++i) {
+        if (!isdigit(line[i])) return false;
+    }
+    return true;
+}
+
 void Game::verifySilentResults() {
     std::ifstream expectedFile("adv-world.result");
     if (!expectedFile.is_open()) {
@@ -583,33 +600,63 @@ void Game::verifySilentResults() {
         return;
     }
 
-    std::string expectedLine;
-    int lineIndex = 0;
+    // 1. PARSE THE FILE INTO A VECTOR
+    // We group lines together so one riddle (even with 3 lines) becomes one Event string
+    std::vector<std::string> expectedEventsVector;
+    std::string line;
+    std::string currentEventBuffer = "";
+
+    while (std::getline(expectedFile, line)) {
+        if (line.empty()) continue;
+
+        // If this line starts with a Timestamp (e.g., "88: "), it's a new event
+        if (isStartOfEvent(line)) {
+            // Push the PREVIOUS event to the list (if exists)
+            if (!currentEventBuffer.empty()) {
+                expectedEventsVector.push_back(currentEventBuffer);
+            }
+            // Start the new event
+            currentEventBuffer = line;
+        }
+        else {
+            // This is a continuation of the previous event (like line 2 of a riddle)
+            // Add it to the buffer with a newline
+            currentEventBuffer += "\n" + line;
+        }
+    }
+    // Push the final event
+    if (!currentEventBuffer.empty()) {
+        expectedEventsVector.push_back(currentEventBuffer);
+    }
+    expectedFile.close();
+
+
+    // 2. COMPARE THE VECTORS
     bool mismatch = false;
+    size_t countToCheck = expectedEventsVector.size();
 
-    while (std::getline(expectedFile, expectedLine)) {
-        if (expectedLine.empty()) continue;
-
-        if (lineIndex >= actualEvents.size()) {
-            std::cout << "Test Failed: Game ended earlier than expected." << std::endl;
-            std::cout << "Missing event: " << expectedLine << std::endl;
-            Sleep(1000);
-            mismatch = true;
-            break;
-        }
-
-        if (actualEvents[lineIndex] != expectedLine) {
-            std::cout << "Test Failed: Mismatch at event " << (lineIndex + 1) << std::endl;
-            std::cout << "  Expected: " << expectedLine << std::endl;
-            std::cout << "  Actual:   " << actualEvents[lineIndex] << std::endl;
-            Sleep(1000);
-            mismatch = true;
-            break;
-        }
-        lineIndex++;
+    // Check if we have enough events
+    if (actualEvents.size() < countToCheck) {
+        std::cout << "Test Failed: Game ended earlier than expected." << std::endl;
+        std::cout << "Missing event: " << expectedEventsVector[actualEvents.size()] << std::endl;
+        Sleep(1000);
+        return;
     }
 
-    if (!mismatch && lineIndex < actualEvents.size()) {
+    // Check contents
+    for (size_t i = 0; i < countToCheck; ++i) {
+        if (actualEvents[i] != expectedEventsVector[i]) {
+            std::cout << "Test Failed: Mismatch at event " << (i + 1) << std::endl;
+            std::cout << "  Expected:\n" << expectedEventsVector[i] << "\n";
+            std::cout << "  Actual:\n" << actualEvents[i] << "\n";
+            Sleep(1000);
+            mismatch = true;
+            break;
+        }
+    }
+
+    // Check for extra events
+    if (!mismatch && actualEvents.size() > countToCheck) {
         std::cout << "Test Failed: Game produced extra events not in the result file." << std::endl;
         Sleep(1000);
         mismatch = true;
