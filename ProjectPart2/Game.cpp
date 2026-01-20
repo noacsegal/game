@@ -10,6 +10,15 @@
 //outer game function
 void Game::startGame() {
 
+    std::streambuf* originalCoutBuffer = std::cout.rdbuf();
+    std::ofstream devNull;
+
+    if (silentMode) {
+        // Redirect cout to a null file (cross-platform "trash can")
+        devNull.open("nul"); // On Windows use "nul", on Linux/Mac use "/dev/null"
+        std::cout.rdbuf(devNull.rdbuf());
+    }
+
     //in case of restart
     hideCursor();
     bool restart = false;
@@ -113,7 +122,7 @@ void Game::startGame() {
                 cls();
                 currScreenPtr->drawOriginal();
 
-                gotoxy(48, 13);
+                gotoxy(30, 13);
                 std::cout << "The Final Score: " << score;
 
                 // Simple wait for exit
@@ -138,6 +147,12 @@ void Game::startGame() {
         }
         if (loadMode) restart = false;
     } while (restart);
+
+    std::cout.rdbuf(originalCoutBuffer);
+
+    if (silentMode) {
+        devNull.close();
+    }
 
 }
 
@@ -485,7 +500,7 @@ void Game::drawLevel(Screen* currScreenPtr, player* players, int indexScreen, bo
 
     auto& switches = currScreenPtr->screenSwitchesByRef();
     for (auto& sw : switches) {
-        if (isVisible(sw.getPlace().getX(), sw.getPlace().getY()) && currScreenPtr->getChar(sw.getPlace().getX(), sw.getPlace().getY()) != ' ') sw.draw();
+        if (isVisible(sw.getPlace().getX(), sw.getPlace().getY())) sw.draw();
     }
 
     auto& doors = currScreenPtr->screenDoorByRef();
@@ -544,18 +559,27 @@ void Game::setGameMode(gameType type)
 
 void Game::logRiddleEvent(std::string riddle, std::string answer, bool isCorrect)
 {
-    if (resultFile.is_open()) {
         std::string status = isCorrect ? "Correct" : "Incorrect";
-        resultFile << currentCycle << ": Riddle: " << riddle
-            << " | Answer: " << answer
-            << " | Result: " << status << std::endl;
-    }
+        std::string entry = std::to_string(currentCycle) + ": Riddle: " + riddle
+            + " | Answer: " + answer
+            + " | Result: " + status;
+
+        // 1. Log to file (for -save mode)
+        if (resultFile.is_open()) {
+            resultFile << entry << std::endl;
+        }
+
+        // 2. Log to vector (for -load -silent mode verification)
+        if (activeType == gameType::FILE) {
+            actualEvents.push_back(entry);
+        }
 }
 
 void Game::verifySilentResults() {
     std::ifstream expectedFile("adv-world.result");
     if (!expectedFile.is_open()) {
         std::cout << "Test Failed: Could not find adv-world.result" << std::endl;
+        Sleep(1000);
         return;
     }
 
@@ -569,6 +593,7 @@ void Game::verifySilentResults() {
         if (lineIndex >= actualEvents.size()) {
             std::cout << "Test Failed: Game ended earlier than expected." << std::endl;
             std::cout << "Missing event: " << expectedLine << std::endl;
+            Sleep(1000);
             mismatch = true;
             break;
         }
@@ -577,6 +602,7 @@ void Game::verifySilentResults() {
             std::cout << "Test Failed: Mismatch at event " << (lineIndex + 1) << std::endl;
             std::cout << "  Expected: " << expectedLine << std::endl;
             std::cout << "  Actual:   " << actualEvents[lineIndex] << std::endl;
+            Sleep(1000);
             mismatch = true;
             break;
         }
@@ -585,11 +611,13 @@ void Game::verifySilentResults() {
 
     if (!mismatch && lineIndex < actualEvents.size()) {
         std::cout << "Test Failed: Game produced extra events not in the result file." << std::endl;
+        Sleep(1000);
         mismatch = true;
     }
 
     if (!mismatch) {
         std::cout << "test passed" << std::endl;
+        Sleep(1000);
     }
 }
 
