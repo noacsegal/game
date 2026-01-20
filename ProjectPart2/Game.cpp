@@ -472,12 +472,13 @@ void Game::drawLevel(Screen* currScreenPtr, player* players, int indexScreen, bo
     // 4. Draw Game Objects (Only if Visible)
     auto& keys = currScreenPtr->screenKeysByRef();
     for (auto& k : keys) {
-        if (isVisible(k.getPlaceP().getX(), k.getPlaceP().getY())) k.draw();
+        if (isVisible(k.getPlaceP().getX(), k.getPlaceP().getY()) && currScreenPtr->getChar(k.getPlaceP().getX(), k.getPlaceP().getY()) != ' ')
+            k.draw();
     }
 
     auto& switches = currScreenPtr->screenSwitchesByRef();
     for (auto& sw : switches) {
-        if (isVisible(sw.getPlace().getX(), sw.getPlace().getY())) sw.draw();
+        if (isVisible(sw.getPlace().getX(), sw.getPlace().getY()) && currScreenPtr->getChar(sw.getPlace().getX(), sw.getPlace().getY()) != ' ') sw.draw();
     }
 
     auto& doors = currScreenPtr->screenDoorByRef();
