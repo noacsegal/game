@@ -6,20 +6,35 @@ int main(int argc, char* argv[]) {
 
     //default to reguler game like part 2
     Game::gameType type = Game::gameType::KEYBOARD;
+    bool silent = false;
 
     // Check arguments
-    if (argc > 1) {
-        if (strcmp(argv[1], "-load") == 0) {
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+
+        if (arg == "-load") {
             type = Game::gameType::FILE; // Replay Mode
         }
-        else if (strcmp(argv[1], "-save") == 0) {
-            
+        else if (arg == "-save") {
             type = Game::gameType::RECORDING_KEYBOARD; // Record Mode
         }
+        else if (arg == "-silent") {
+            silent = true; // Replay in silent mode
+        }
+    }
+    if (type == Game::gameType::FILE && silent) {
+        game.setSilent(true);
+    }
+    else {
+        game.setSilent(false);
     }
 
 	game.setGameMode(type);
 	game.startGame();
+
+    if (type == Game::gameType::FILE && silent) {
+        game.verifySilentResults();
+    }
 
     return 0;
 }

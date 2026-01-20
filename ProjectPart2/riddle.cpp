@@ -28,7 +28,7 @@ bool riddle::ask_riddle(Game& game) {
 		}
 
 		//prints the answer to the screen in silent mode
-		if (game.isSilentMode()) {
+		if (game.isLoadMode()) {
 			Sleep(500);
 			std::cout << input << std::endl;
 			Sleep(500);

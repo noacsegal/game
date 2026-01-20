@@ -28,7 +28,7 @@ void Game::startGame() {
 
 
         //waits to start the game
-        if (!silentMode) {
+        if (!loadMode) {
             if (!startingScreen(currScreenPtr)) {
                 return;
             }
@@ -59,14 +59,16 @@ void Game::startGame() {
             players[0].moveScreen(currScreenPtr->player1posRef());
             players[1].moveScreen(currScreenPtr->player2posRef());
 
-            cls();
-            gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
+            if (!silentMode) {
+                cls();
+                gs.printPlayorInventory(currScreenPtr->legendPosByRef(), players[0], players[1]);
 
-            currScreenPtr->drawOriginal();
+                currScreenPtr->drawOriginal();
 
-            //draw players
-            for (auto& s : players) {
-                s.draw();
+                //draw players
+                for (auto& s : players) {
+                    s.draw();
+                }
             }
 
             //play this specific level
@@ -100,8 +102,8 @@ void Game::startGame() {
         }
 
         //end screen
-        if (!restart && indexScreen == gs.numOfScreens()) {
-            if (!silentMode) {
+        if (!silentMode && !restart && indexScreen == gs.numOfScreens()) {
+            if (!loadMode) {
                 int score = (players[0].getNumLives() + players[1].getNumLives()) * 100;
                 logEvent("Game Ended. Final Score: " + std::to_string(score));
 
@@ -123,7 +125,7 @@ void Game::startGame() {
         }
 
         //restart if lives ended
-        if (result == levelStatus::RESTARTFAIL && !silentMode) {
+        if (result == levelStatus::RESTARTFAIL && !loadMode && !silentMode) {
 
             cls();
             gotoxy(0, 0);
@@ -134,7 +136,7 @@ void Game::startGame() {
             std::cout << "the game will restart now" << std::endl;
             Sleep(1000);
         }
-        if (silentMode) restart = false;
+        if (loadMode) restart = false;
     } while (restart);
 
 }
@@ -182,8 +184,10 @@ Game::levelStatus Game::playLevel(Screen* currScreenPtr, player* players, GameSc
     bool playerFinished[GameScreens::NUM_OF_PLAYERS] = { false, false };
 
     // Initial Draw
-    currScreenPtr->drawOriginal();
-    for (const auto& d : currScreenPtr->screenDoorByRef()) d.getPlace().draw();
+    if (!silentMode) {
+        currScreenPtr->drawOriginal();
+        for (const auto& d : currScreenPtr->screenDoorByRef()) d.getPlace().draw();
+    }
 
     while (running) {
 
@@ -202,8 +206,11 @@ Game::levelStatus Game::playLevel(Screen* currScreenPtr, player* players, GameSc
             }
         }
        
-        // draw whats needed
-        drawLevel(currScreenPtr, players, indexScreen, playerFinished);
+        // draw whats needed if silent mode if false
+        if (!silentMode) {
+            drawLevel(currScreenPtr, players, indexScreen, playerFinished);
+            Sleep(sleepTime);
+        }
 
         //next level check
         if (playerFinished[0] && playerFinished[1]) return levelStatus::NEXT_LEVEL;
@@ -229,7 +236,7 @@ Game::levelStatus Game::playLevel(Screen* currScreenPtr, player* players, GameSc
         if (livesAfterPlayer2 < livesBeforePlayer2) {
             logEvent("Player 2 lost a life");
         }
-        Sleep(sleepTime);
+      
         currentCycle++;
     }
     return levelStatus::RESTARTFAIL;
@@ -246,7 +253,7 @@ Game::levelStatus Game::handleInput(player* players, Screen* currScreenPtr, Game
     if (keyBoard != 0) {
 
         //can only pause and exit when keyboard game is played
-        if (!silentMode) {
+        if (!loadMode) {
             if (keyBoard == KeyBoardKeys::ESC) {
 
                 gotoxy(0, Screen::MAX_Y);
@@ -505,13 +512,19 @@ void Game::drawLevel(Screen* currScreenPtr, player* players, int indexScreen, bo
 //checks what kind of game we are playing
 void Game::setGameMode(gameType type)
 {
+    this->activeType = type;
+
     //game that reads input from file
     if (type == gameType::FILE) {
-        silentMode = true;
+        loadMode = true;
         input = &filePlay;
         filePlay.init();
-        sleepTime = 10;
-
+        if (this->silentMode) {
+            this->sleepTime = 0;
+        }
+        else {
+            this->sleepTime = 10;
+        }
     }
     //game that writes input to file
     else if (type == gameType::RECORDING_KEYBOARD) {
@@ -536,5 +549,67 @@ void Game::logRiddleEvent(std::string riddle, std::string answer, bool isCorrect
         resultFile << currentCycle << ": Riddle: " << riddle
             << " | Answer: " << answer
             << " | Result: " << status << std::endl;
+    }
+}
+
+void Game::verifySilentResults() {
+    std::ifstream expectedFile("adv-world.result");
+    if (!expectedFile.is_open()) {
+        std::cout << "Test Failed: Could not find adv-world.result" << std::endl;
+        return;
+    }
+
+    std::string expectedLine;
+    int lineIndex = 0;
+    bool mismatch = false;
+
+    while (std::getline(expectedFile, expectedLine)) {
+        if (expectedLine.empty()) continue;
+
+        if (lineIndex >= actualEvents.size()) {
+            std::cout << "Test Failed: Game ended earlier than expected." << std::endl;
+            std::cout << "Missing event: " << expectedLine << std::endl;
+            mismatch = true;
+            break;
+        }
+
+        if (actualEvents[lineIndex] != expectedLine) {
+            std::cout << "Test Failed: Mismatch at event " << (lineIndex + 1) << std::endl;
+            std::cout << "  Expected: " << expectedLine << std::endl;
+            std::cout << "  Actual:   " << actualEvents[lineIndex] << std::endl;
+            mismatch = true;
+            break;
+        }
+        lineIndex++;
+    }
+
+    if (!mismatch && lineIndex < actualEvents.size()) {
+        std::cout << "Test Failed: Game produced extra events not in the result file." << std::endl;
+        mismatch = true;
+    }
+
+    if (!mismatch) {
+        std::cout << "test passed" << std::endl;
+    }
+}
+
+void Game::setSilent(bool mode) {
+    this->silentMode = mode;
+    if (mode) {
+        this->sleepTime = 0; // Run as fast as possible
+    }
+}
+
+void Game::logEvent(std::string message) {
+
+    std::string entry = std::to_string(currentCycle) + ": " + message;
+
+    // We are recording the game (-save)
+    if (resultFile.is_open()) {
+        resultFile << entry << std::endl;
+    }
+
+    if (activeType == gameType::FILE) {
+        actualEvents.push_back(entry);
     }
 }
